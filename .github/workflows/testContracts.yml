@@ -25,7 +25,10 @@ jobs:
         node-version: ${{ matrix.node-version }}
         cache: 'npm'
         cache-dependency-path: 'package-lock.json'
-        
+    
+    - name: Install Truffle
+      run: npm install truffle -g
+
     # install dependencies
     - run: npm ci
 
