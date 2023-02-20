@@ -32,8 +32,8 @@ jobs:
     - name: Install Dependencies
       run: npm install
 
-    - name: Compile Contracts
-      run: truffle compile
+    - name: Start TestRPC
+      run: ganache-cli &
       
     - name: Run Tests
-      run: truffle test
+      run: truffle test --network testrpc
