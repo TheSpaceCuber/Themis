@@ -32,5 +32,5 @@ jobs:
     # install dependencies
     - run: npm ci
 
-    # build and test
-    - run: truffle test
+    # install ganache and test
+    - run: npx ganache-cli & sleep 5 && npx truffle test
