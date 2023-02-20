@@ -27,10 +27,13 @@ jobs:
         cache-dependency-path: 'package-lock.json'
     
     - name: Install Truffle
-      run: npm install truffle -g
+      run: npm install -g truffle
 
-    # install dependencies
-    - run: npm ci
+    - name: Install Dependencies
+      run: npm install
 
-    # install ganache and test
-    - run: npx ganache-cli & sleep 5 && npx truffle test
+    - name: Compile Contracts
+      run: truffle compile
+      
+    - name: Run Tests
+      run: truffle test
