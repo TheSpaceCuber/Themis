@@ -1,0 +1,42 @@
+name: Unit tests for contracts
+
+on:
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./
+    strategy:
+      matrix:
+        node-version: [16.x]
+
+    steps:
+    # Checks-out repository under $GITHUB_WORKSPACE, so the job can access it
+    - uses: actions/checkout@v3
+
+    # setup node
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v3
+      with:
+        node-version: ${{ matrix.node-version }}
+        cache: 'npm'
+        cache-dependency-path: 'package-lock.json'
+    
+    - name: Install Truffle
+      run: npm install -g truffle
+
+    - name: Install Ganache
+      run: npm install -g ganache 
+
+    - name: Install Dependencies
+      run: npm install
+
+    - name: Start TestRPC
+      run: ganache-cli &
+
+    - name: Run Tests
+      run: truffle test --network testrpc
