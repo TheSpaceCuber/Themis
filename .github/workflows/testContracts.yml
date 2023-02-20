@@ -1,0 +1,33 @@
+name: Unit tests for contracts
+
+on:
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./
+    strategy:
+      matrix:
+        node-version: [16.x]
+
+    steps:
+    # Checks-out repository under $GITHUB_WORKSPACE, so the job can access it
+    - uses: actions/checkout@v3
+
+    # setup node
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v3
+      with:
+        node-version: ${{ matrix.node-version }}
+        cache: 'npm'
+        cache-dependency-path: 'package-lock.json'
+        
+    # install dependencies
+    - run: npm ci
+
+    # build and test
+    - run: truffle test
