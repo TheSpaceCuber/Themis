@@ -29,11 +29,14 @@ jobs:
     - name: Install Truffle
       run: npm install -g truffle
 
+    - name: Install Ganache
+      run: npm install -g ganache 
+
     - name: Install Dependencies
       run: npm install
 
     - name: Start TestRPC
       run: ganache-cli &
-      
+
     - name: Run Tests
       run: truffle test --network testrpc
