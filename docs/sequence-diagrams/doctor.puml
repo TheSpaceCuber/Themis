@@ -1,0 +1,7 @@
+@startuml
+actor Doctor
+Doctor -> AccessControl: isDoctorAuthorized(doctorId)
+AccessControl -> MedicalRecord: addMedicalRecord(patientId, doctorId)
+MedicalRecord -> MedicalRecord: activateMedicalRecord()
+MedicalRecord -> MedicalRecord: deactivateMedicalRecord()
+@enduml

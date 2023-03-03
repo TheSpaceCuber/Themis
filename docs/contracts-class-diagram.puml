@@ -1,0 +1,88 @@
+@startuml
+
+class Patient {
+    - id : uint256
+    - name : string
+    - gender : string
+    - dateOfBirth : uint256
+    - createdAt : uint256
+    - createdBy : address
+    - isActive : bool
+    + addPatient(name: string, gender: string, dateOfBirth: uint256) : bool
+    + activatePatient() : bool
+    + deactivatePatient() : bool
+}
+
+class Doctor {
+    - id : uint256
+    - name : string
+    - specialty : string
+    - dateOfBirth : uint256
+    - createdAt : uint256
+    - createdBy : address
+    - isActive : bool
+    + addDoctor(name: string, specialty: string, dateOfBirth: uint256) : bool
+    + activateDoctor() : bool
+    + deactivateDoctor() : bool
+}
+
+class Administrator {
+    - id : uint256
+    - name : string
+    - createdAt : uint256
+    - createdBy : address
+    - isActive : bool
+    + addAdministrator(name: string) : bool
+    + activateAdministrator() : bool
+    + deactivateAdministrator() : bool
+    + approveDoctor(doctorId: uint256) : bool
+}
+
+class MedicalRecord {
+    - id : uint256
+    - patientId : uint256
+    - doctorId : uint256
+    - createdAt : uint256
+    - createdBy : address
+    - isActive : bool
+    - addMedicalRecord(patientId: uint256, doctorId: uint256) : bool
+    - activateMedicalRecord() : bool
+    - deactivateMedicalRecord() : bool
+}
+
+class Note {
+    - id : uint256
+    - medicalRecordId : uint256
+    - doctorId : uint256
+    - content : string
+    - createdAt : uint256
+    - createdBy : address
+    - isActive : bool
+    + addNote(medicalRecordId: uint256, doctorId: uint256, content: string) : bool
+    + activateNote() : bool
+    + deactivateNote() : bool
+}
+
+class Search {
+    + searchMedicalRecordsByPatient(patientId: uint256) : string
+    + searchMedicalRecordsByDoctor(doctorId: uint256) : string
+}
+
+class AccessControl {
+    - authorizedDoctors : mapping(uint256 => bool)
+    - authorizedAdministrators : mapping(uint256 => bool)
+    + authorizeDoctor(doctorId: uint256) : bool
+    + authorizeAdministrator(administratorId: uint256) : bool
+    + isDoctorAuthorized(doctorId: uint256) : bool
+    + isAdministratorAuthorized(administratorId: uint256) : bool
+}
+
+Patient --* MedicalRecord
+Doctor --* MedicalRecord
+MedicalRecord --* Note
+Doctor -- AccessControl
+Administrator -- AccessControl
+AccessControl --* MedicalRecord
+AccessControl --* Note
+
+@enduml
