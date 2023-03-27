@@ -7,6 +7,9 @@ web3.eth.net.isListening()
 // Retrieve transaction data
 const contractAddress = "0x6419a773597f40e0daB23f845EF43a8733929561";
 
+/**
+ * Method 1
+ */
 // // For retrieving contract data
 // const abi = [
 //     {
@@ -31,6 +34,7 @@ const contractAddress = "0x6419a773597f40e0daB23f845EF43a8733929561";
 
 
 /**
+ * Method 2
  * This method of looking through the logs is useful for searching through past campaigns that have ended.
  * This method returns all the logs that are related to a specified contract address (i.e. the campaign's contract)
  * and then retrieves transaction information based on the 'transactionHash' field in the logs.
@@ -57,6 +61,7 @@ const options = {
 // }
 
 /**
+ * Method 3
  * This other method may be more efficient for refund purposes since we're only looking at events
  * from a particular contract. However, one limitation is that this method requires a contract's
  * ABI, which is some sort of JSON representing the source code. Currently, the simplest but jankiest
