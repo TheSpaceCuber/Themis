@@ -4,7 +4,6 @@ import "./CampaignFactory.sol";
 
 contract IAM {
     address owner;
-    // CampaignFactory factoryContract;
 
     // the NONE status maps to 0; for unmapped addresses
     enum status { NONE, VERIFIED, LOCK, DISTRUST }
@@ -39,11 +38,6 @@ contract IAM {
     function isDistrust(address organisation) public view returns (bool) {
         return (orgStatus[organisation] == status.DISTRUST);
     }
-
-    // function setFactory(CampaignFactory factoryAddress) public ownerOnly {
-    //     require(address(factoryAddress) != address(0));
-    //     factoryContract = factoryAddress;
-    // }
 
     function getStatus(address organisation) public view returns (status) {
         return orgStatus[organisation];

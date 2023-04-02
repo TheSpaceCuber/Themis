@@ -45,7 +45,7 @@ contract CampaignFactory {
         return IAMContract.isLocked(organisation);
     }
 
-    function isDistrust (address organisation) public view returns (bool) {
+    function isDistrust(address organisation) public view returns (bool) {
         return IAMContract.isDistrust(organisation);
     }
 
@@ -113,7 +113,7 @@ contract CampaignFactory {
         emit commissionWithdrawn(amount);
     }
     
-    function refundCampaigns(address organisation) public ownerOnly {
+    function refundAllCampaigns(address organisation) public ownerOnly {
         require(isDistrust(organisation) == true);
         uint256 len = orgCampaigns[organisation].length - 1;
         for (int i = int(len); i >= 0; i--) {

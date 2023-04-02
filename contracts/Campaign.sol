@@ -6,7 +6,7 @@ import "./CampaignFactory.sol";
 contract Campaign {
     address manager;        // the factory
     address owner;
-    uint256 lockoutEndDatetime;
+    uint256 endDatetime;
     IAM IAMContract;
     uint256 totalDonated = 0;
     uint256 commissionBP = 1000; // 10% == (1000 / 10,000) basis points
@@ -18,7 +18,7 @@ contract Campaign {
 
     constructor(uint256 secs, address orgAddress, IAM IAMaddress 
         ) public {
-        lockoutEndDatetime = block.timestamp + secs;
+        endDatetime = block.timestamp + secs;
         owner = orgAddress;
         manager = msg.sender;
         IAMContract = IAMaddress;
@@ -45,7 +45,7 @@ contract Campaign {
         _;
     }
 
-    modifier withinLockoutOnly() {
+    modifier ongoingCampaignOnly() {
         require(isPastLockout() == false);
         _;
     }
@@ -66,15 +66,15 @@ contract Campaign {
     }
 
     function isPastLockout() public view returns (bool) {
-        return block.timestamp >= lockoutEndDatetime;
+        return block.timestamp >= endDatetime;
     }
 
     function getCharityOrganisation() public view returns (address) {
         return owner;
     }
 
-    function getLockoutEndDatetime() public view returns (uint256) {
-        return lockoutEndDatetime;
+    function getendDatetime() public view returns (uint256) {
+        return endDatetime;
     }
 
     function getTotalDonated() public view returns (uint256) {
@@ -82,7 +82,7 @@ contract Campaign {
     }
     
     // --- FUNCTIONS ---
-    function donate() public payable verifiedOnly withinLockoutOnly {
+    function donate() public payable verifiedOnly ongoingCampaignOnly {
         require(msg.value > 0);
         totalDonated += msg.value;
         emit donationMade(msg.sender, msg.value);
