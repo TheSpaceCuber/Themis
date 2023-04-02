@@ -12,8 +12,8 @@ contract CampaignFactory {
 
     mapping(address => address[]) orgCampaigns;
 
-    event mountCampaign(address org, address campaign, uint256 durationHrs);
-    event campaignEnded(address org, address campaign);
+    event mountCampaign(address organisation, address campaign, uint256 durationHrs);
+    event campaignEnded(address organisation, address campaign);
     event commissionWithdrawn(uint256 amnt);
     event campaignDeleted(address organisation, address campaign);
     event orgDeleted(address organisation);
