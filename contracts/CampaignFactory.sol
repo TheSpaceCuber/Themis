@@ -26,12 +26,12 @@ contract CampaignFactory {
 
     // --- MODIFIERS ---
     modifier ownerOnly() {
-        require(owner == msg.sender);
+        require(owner == msg.sender, "Caller is not owner");
         _;
     }
 
     modifier verifiedOnly() {
-        require(isVerified(msg.sender) == true);
+        require(isVerified(msg.sender) == true, "Address is not verified");
         _;
     }
 
@@ -60,7 +60,7 @@ contract CampaignFactory {
     // --- FUNCTIONS ---
     // overloaded
     function addCampaign() public verifiedOnly returns (Campaign) {
-        require(orgCampaigns[msg.sender].length < MAX_CHARITIES);
+        require(orgCampaigns[msg.sender].length < MAX_CHARITIES, "Maximum active charities reached");
         
         uint256 durationSecs = hoursToSeconds(HoursInYear);
         Campaign c = new Campaign(durationSecs, msg.sender, IAMContract);
@@ -73,9 +73,9 @@ contract CampaignFactory {
     // overloaded
     // If organisation specifies duration of campaign in hours
     function addCampaign(uint16 durationHrs) public verifiedOnly returns (Campaign) {
-        require(durationHrs >= 1);
-        require(durationHrs <= HoursInYear);
-        require(orgCampaigns[msg.sender].length < MAX_CHARITIES);
+        require(durationHrs >= 1, "Minimum duration (hrs) is 1 hour");
+        require(durationHrs <= HoursInYear, "Maximum duration (in hrs) is 1 year");
+        require(orgCampaigns[msg.sender].length < MAX_CHARITIES, "Maximum active charities reached");
         
         uint256 durationSecs = hoursToSeconds(durationHrs);
         Campaign c = new Campaign(durationSecs, msg.sender, IAMContract);
@@ -87,10 +87,10 @@ contract CampaignFactory {
 
     // called from Campaign.sol after beneficiary withdraw()
     function closeCampaign(address organisation, Campaign campaign) public {
-        require(isVerified(organisation) == true);
-        require(campaign.isPastLockout() == true);
-        require(tx.origin == organisation);
-        require(msg.sender == address(campaign));
+        require(isVerified(organisation) == true, "Address is not verified");
+        require(campaign.isPastLockout() == true, "Campaign is ongoing");
+        require(tx.origin == organisation, "Caller is not owner");
+        require(msg.sender == address(campaign), "Not called from Campaign contract");
 
         // delete campaign from active list
         uint256 len = orgCampaigns[organisation].length - 1;        
@@ -104,33 +104,33 @@ contract CampaignFactory {
     }
 
     // withdraw commission
-    function withdraw() public ownerOnly {
-        require(address(this).balance > 0);
-        address payable beneficiary = address(uint160(owner));
+    function withdrawCommissions() public ownerOnly {
+        require(address(this).balance > 0, "No remaining balance");
+        address payable ownerAddr = address(uint160(owner));
         uint256 amount = address(this).balance;
 
-        beneficiary.transfer(amount);
+        ownerAddr.transfer(amount);
         emit commissionWithdrawn(amount);
     }
     
     function refundAllCampaigns(address organisation) public ownerOnly {
-        require(isDistrust(organisation) == true);
+        require(isDistrust(organisation) == true, "Organisation status is not distrust");
         uint256 len = orgCampaigns[organisation].length - 1;
         for (int i = int(len); i >= 0; i--) {
             Campaign c = Campaign(orgCampaigns[organisation][uint256(i)]);
             c.refund(address(c)); // placeholder
-            deleteCampaign(organisation, address(c));
+            deleteCampaignFromMapping(organisation, address(c));
         }
-        deleteOrganisation(organisation);
+        deleteOrgFromMapping(organisation);
         emit refundComplete(organisation);
     }
 
-    function deleteCampaign(address organisation, address campaignAddr) private {
+    function deleteCampaignFromMapping(address organisation, address campaignAddr) private {
         orgCampaigns[organisation].pop();
         emit campaignDeleted(organisation, campaignAddr);
     }
 
-    function deleteOrganisation(address organisation) private {
+    function deleteOrgFromMapping(address organisation) private {
         delete orgCampaigns[organisation];
         emit orgDeleted(organisation);
     }

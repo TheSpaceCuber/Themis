@@ -21,7 +21,7 @@ contract IAM {
 
     // --- MODIFIERS ---
     modifier ownerOnly() {
-        require(owner == msg.sender);
+        require(owner == msg.sender, "Caller is not owner");
         _;
     }
 
@@ -65,7 +65,7 @@ contract IAM {
     // --- FUNCTIONS ---
     // adds a verified organisation
     function add(address organisation) public ownerOnly {
-        require(orgStatus[organisation] == status.NONE); // unregistered orgs
+        require(orgStatus[organisation] == status.NONE, "Organisation address already exists");
         orgStatus[organisation] = status.VERIFIED;
         orgList.push(organisation);
         emit addVerifiedOrg(organisation);

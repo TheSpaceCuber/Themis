@@ -4,7 +4,7 @@ import "./IAM.sol";
 import "./CampaignFactory.sol";
 
 contract Campaign {
-    address manager;        // the factory
+    address campaignFactory;
     address owner;
     uint256 endDatetime;
     IAM IAMContract;
@@ -20,38 +20,38 @@ contract Campaign {
         ) public {
         endDatetime = block.timestamp + secs;
         owner = orgAddress;
-        manager = msg.sender;
+        campaignFactory = msg.sender;
         IAMContract = IAMaddress;
     }
 
     // --- MODIFIERS ---
     modifier ownerOnly() {
-        require(owner == msg.sender);
+        require(owner == msg.sender, "Caller is not owner");
         _;
     }
 
     modifier verifiedOnly() {
-        require(isVerifiedOwner() == true);
+        require(isVerifiedOwner() == true, "Address is not verified");
         _;
     }
 
     modifier distrustOnly() {
-        require(isDistrustedOwner() == true);
+        require(isDistrustedOwner() == true, "Organisation status is not distrust");
         _;
     }
 
-    modifier managerOnly() {
-        require(manager == msg.sender);
+    modifier campaignFactoryOnly() {
+        require(campaignFactory == msg.sender, "Not called from campaignFactory contract");
         _;
     }
 
     modifier ongoingCampaignOnly() {
-        require(isPastLockout() == false);
+        require(isPastLockout() == false, "Campaign has ended");
         _;
     }
 
     modifier pastLockoutOnly() {
-        require(isPastLockout() == true);
+        require(isPastLockout() == true, "Campaign is ongoing");
         _;
     }
 
@@ -73,7 +73,7 @@ contract Campaign {
         return owner;
     }
 
-    function getendDatetime() public view returns (uint256) {
+    function getEndDatetime() public view returns (uint256) {
         return endDatetime;
     }
 
@@ -83,7 +83,7 @@ contract Campaign {
     
     // --- FUNCTIONS ---
     function donate() public payable verifiedOnly ongoingCampaignOnly {
-        require(msg.value > 0);
+        require(msg.value > 0, "Invalid donation amount");
         totalDonated += msg.value;
         emit donationMade(msg.sender, msg.value);
     }
@@ -91,17 +91,17 @@ contract Campaign {
     function withdraw() public ownerOnly verifiedOnly pastLockoutOnly {
         uint256 commission = (totalDonated * commissionBP) / basispoints;
         
-        address payable platform = address(uint160(manager));
+        address payable campgnFactory = address(uint160(campaignFactory));
         address payable beneficiary = address(uint160(owner));
-        uint256 toBeDonated =  totalDonated - commission;
+        uint256 netDonationAmt =  totalDonated - commission;
 
-        platform.transfer(commission);
-        beneficiary.transfer(toBeDonated);
-        emit hasWithdrawn(beneficiary, toBeDonated);
+        campgnFactory.transfer(commission);
+        beneficiary.transfer(netDonationAmt);
+        emit hasWithdrawn(beneficiary, netDonationAmt);
     }
 
     // pseudo-code for follow up    
-    function refund(address campaignAddr) public managerOnly distrustOnly {
+    function refund(address campaignAddr) public campaignFactoryOnly distrustOnly {
 
         //retrieve past transactions/events here using campaignAddr
         /*
