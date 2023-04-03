@@ -25,6 +25,11 @@ contract IAM {
         _;
     }
 
+    modifier registeredOnly(address organisation) {
+        require(orgStatus[organisation] != status.NONE, "Organisation address does not exist");
+        _;
+    }
+
     // --- GETTERS / SETTERS ---
     // may be used later
     function isVerified(address organisation) public view returns (bool) {
@@ -47,17 +52,17 @@ contract IAM {
         return orgList;
     }
 
-    function setVerified(address organisation) public ownerOnly {
+    function setVerified(address organisation) public ownerOnly registeredOnly(organisation) {
         orgStatus[organisation] = status.VERIFIED;
         emit orgVerified(organisation);
     }
     
-    function setLocked(address organisation) public ownerOnly {
+    function setLocked(address organisation) public ownerOnly registeredOnly(organisation) {
         orgStatus[organisation] = status.LOCK;
         emit orgLocked(organisation);
     }
     
-    function setDistrust(address organisation) public ownerOnly {
+    function setDistrust(address organisation) public ownerOnly registeredOnly(organisation) {
         orgStatus[organisation] = status.DISTRUST;
         emit orgDistrust(organisation);
     }
