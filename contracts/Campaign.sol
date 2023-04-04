@@ -12,7 +12,7 @@ contract Campaign {
     uint256 commissionBP = 1000; // 10% == (1000 / 10,000) basis points
     uint256 basispoints = 10000;
 
-    event campaignInfo(address owner, string status, uint256 endDatetime, uint256 totalDonated);
+    event campaignInfoRetrieved(address owner, string status, uint256 endDatetime, uint256 totalDonated);
     event donationMade(address donor, uint256 donatedAmt);
     event hasWithdrawn(address from, uint256 totalDonationAmt);
     event hasRefunded(address donor, uint256 refundedAmt);
