@@ -12,9 +12,10 @@ contract Campaign {
     uint256 commissionBP = 1000; // 10% == (1000 / 10,000) basis points
     uint256 basispoints = 10000;
 
-    event donationMade (address donor, uint256 donatedAmt);
-    event hasWithdrawn (address from, uint256 totalDonationAmt);
-    event hasRefunded (address donor, uint256 refundedAmt);
+    event campaignInfo(address owner, string status, uint256 endDatetime, uint256 totalDonated);
+    event donationMade(address donor, uint256 donatedAmt);
+    event hasWithdrawn(address from, uint256 totalDonationAmt);
+    event hasRefunded(address donor, uint256 refundedAmt);
 
     constructor(uint256 secs, address orgAddress, IAM IAMaddress 
         ) public {
@@ -73,6 +74,19 @@ contract Campaign {
         return owner;
     }
 
+    function getCampaignInfo() public {
+        uint256 statusInt = uint256(IAMContract.getStatus(owner));
+        string memory status;
+        if (statusInt == 1) {
+            status = "Verified";
+        } else if (statusInt == 2) {
+            status = "Locked";
+        } else {
+            status = "Distrust";
+        }
+        emit campaignInfo(owner, status, endDatetime, totalDonated);
+    }
+
     function getEndDatetime() public view returns (uint256) {
         return endDatetime;
     }
@@ -98,6 +112,8 @@ contract Campaign {
         campgnFactory.transfer(commission);
         beneficiary.transfer(netDonationAmt);
         emit hasWithdrawn(beneficiary, netDonationAmt);
+
+        CampaignFactory(campaignFactory).closeCampaign(owner, this);
     }
 
     // pseudo-code for follow up    

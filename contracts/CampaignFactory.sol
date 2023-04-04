@@ -73,7 +73,7 @@ contract CampaignFactory {
     // overloaded
     // If organisation specifies duration of campaign in hours
     function addCampaign(uint16 durationHrs) public verifiedOnly returns (Campaign) {
-        require(durationHrs >= 1, "Minimum duration (hrs) is 1 hour");
+        require(durationHrs >= 24, "Minimum duration (hrs) is 24 hour");
         require(durationHrs <= HoursInYear, "Maximum duration (in hrs) is 1 year");
         require(orgCampaigns[msg.sender].length < MAX_CHARITIES, "Maximum active charities reached");
         
