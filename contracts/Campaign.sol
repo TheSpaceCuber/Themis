@@ -84,7 +84,7 @@ contract Campaign {
         } else {
             status = "Distrust";
         }
-        emit campaignInfo(owner, status, endDatetime, totalDonated);
+        emit campaignInfoRetrieved(owner, status, endDatetime, totalDonated);
     }
 
     function getEndDatetime() public view returns (uint256) {
