@@ -19,7 +19,7 @@ contract ("Campaign", function(accounts){
         // Beneficiary status should be verified upon add
         truffleAssert.eventEmitted(setDist, 'addVerifiedOrg'); 
     });
-    /*
+
     // Using getStatus to track status
     it("IAM01-2: Registering of beneficiary [Pass]", async() => {
         let bStatus = await IAMInstance.getStatus(accounts[0]);
@@ -68,24 +68,49 @@ contract ("Campaign", function(accounts){
             "Maximum active charities reached"
         );
     });
-    */
+
     it("CAMF03: Create campaign with addCampaign(uint16 durationHrs) [Pass]", async() => {
-
-        // let addC2 = await campaignFactoryInstance.addCampaign(240);
-        let addC2 = await campaignFactoryInstance.methods['addCampaign(uint16)'](240, {from: accounts[0]});
-        truffleAssert.eventEmitted(addC2, 'mountCampaign');
-
-        // Try with another account
-        let addBeneficiary2 = await IAMInstance.add(accounts[1]);
-        let addC3 = await campaignFactoryInstance.methods['addCampaign(uint16)'](480, {from: accounts[1]});
+        await IAMInstance.add(accounts[1]);
+        let addC3 = await campaignFactoryInstance.methods['addCampaign(uint16)'](240, {from: accounts[1]});
         truffleAssert.eventEmitted(addC3, 'mountCampaign');
     });
 
-    /*
     it("CAMF04: Create campaign with addCampaign(uint16 durationHrs) using invalid date [Fail]", async() => {
+        // Non uint16 number
+        await truffleAssert.fails(
+            campaignFactoryInstance.methods['addCampaign(uint16)'](-999, {from: accounts[1]})
+        );
+
+        // Over uint16 MAX
+        await truffleAssert.fails(
+            campaignFactoryInstance.methods['addCampaign(uint16)'](65536, {from: accounts[1]})
+        );
+        
+        // Below min duration
+        await truffleAssert.reverts(
+            campaignFactoryInstance.methods['addCampaign(uint16)'](1, {from: accounts[1]}),
+            "Minimum duration (hrs) is 24 hour"
+        );
+        
+        //Above max duration
+        await truffleAssert.reverts(
+            campaignFactoryInstance.methods['addCampaign(uint16)'](9000, {from: accounts[1]}),
+            "Maximum duration (in hrs) is 1 year"
+        );
     });
 
     it("CAMF05: Create 5 more Campaigns with addCampaign(uint16 durationHrs) [Fail]", async() => {
+        // Create 4 campaign to hit limit
+        await campaignFactoryInstance.methods['addCampaign(uint16)'](240, {from: accounts[1]});
+        await campaignFactoryInstance.methods['addCampaign(uint16)'](240, {from: accounts[1]});
+        await campaignFactoryInstance.methods['addCampaign(uint16)'](240, {from: accounts[1]});
+        await campaignFactoryInstance.methods['addCampaign(uint16)'](240, {from: accounts[1]});
+
+        // Creation of 6th campaign should fail
+        await truffleAssert.reverts(
+            campaignFactoryInstance.methods['addCampaign(uint16)'](240, {from: accounts[1]}),
+            "Maximum active charities reached"
+        );
     });
 
     console.log("Testing Campaign contract");
@@ -104,5 +129,4 @@ contract ("Campaign", function(accounts){
 
     it("CAM05: Owner withdraw campaign [Pass]", async() => {
     });
-    */
 });
