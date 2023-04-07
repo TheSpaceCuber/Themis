@@ -3,7 +3,7 @@ const HelloWorld = artifacts.require("HelloWorld");
 const CampaignFactory = artifacts.require("CampaignFactory");
 const IAM = artifacts.require("IAM");
 
-module.exports = function (deployer) {
+module.exports = (deployer, network, accounts) => {
   let iam;
   deployer.deploy(HelloWorld);
   deployer.deploy(IAM).then(instance => {
