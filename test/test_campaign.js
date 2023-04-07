@@ -10,14 +10,14 @@ contract ("Campaign", function(accounts){
         IAMInstance = await IAM.deployed();
         campaignFactoryInstance = await CampaignFactory.deployed();
     });
-    /*
+    
     console.log("Testing IAM contract");
 
     // Using emitted logs to track status
     it("IAM01-1: Registering of beneficiary [Pass]", async() => {
-        await IAMInstance.add(accounts[0]);
+        let setDist = await IAMInstance.add(accounts[0]);
         // Beneficiary status should be verified upon add
-        truffleAssert.eventEmitted(setDist, 'orgVerified'); 
+        truffleAssert.eventEmitted(setDist, 'addVerifiedOrg'); 
     });
 
     // Using getStatus to track status
@@ -68,7 +68,7 @@ contract ("Campaign", function(accounts){
             "Maximum active charities reached"
         );
     });
-    */
+    
     it("CAMF03: Create campaign with addCampaign(uint16 durationHrs) [Pass]", async() => {
 
         let addC2 = await campaignFactoryInstance.addCampaign(240);
