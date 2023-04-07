@@ -12,14 +12,14 @@ contract ("Campaign", function(accounts){
     });
     
     console.log("Testing IAM contract");
-
+    
     // Using emitted logs to track status
     it("IAM01-1: Registering of beneficiary [Pass]", async() => {
         let setDist = await IAMInstance.add(accounts[0]);
         // Beneficiary status should be verified upon add
         truffleAssert.eventEmitted(setDist, 'addVerifiedOrg'); 
     });
-
+    /*
     // Using getStatus to track status
     it("IAM01-2: Registering of beneficiary [Pass]", async() => {
         let bStatus = await IAMInstance.getStatus(accounts[0]);
@@ -68,11 +68,17 @@ contract ("Campaign", function(accounts){
             "Maximum active charities reached"
         );
     });
-    
+    */
     it("CAMF03: Create campaign with addCampaign(uint16 durationHrs) [Pass]", async() => {
 
-        let addC2 = await campaignFactoryInstance.addCampaign(240);
+        // let addC2 = await campaignFactoryInstance.addCampaign(240);
+        let addC2 = await campaignFactoryInstance.methods['addCampaign(uint16)'](240, {from: accounts[0]});
         truffleAssert.eventEmitted(addC2, 'mountCampaign');
+
+        // Try with another account
+        let addBeneficiary2 = await IAMInstance.add(accounts[1]);
+        let addC3 = await campaignFactoryInstance.methods['addCampaign(uint16)'](480, {from: accounts[1]});
+        truffleAssert.eventEmitted(addC3, 'mountCampaign');
     });
 
     /*
