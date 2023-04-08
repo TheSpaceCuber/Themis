@@ -1,8 +1,11 @@
 const _deploy_contracts = require("../migrations/2_deploy_contracts");
 const truffleAssert = require("truffle-assertions");
+const BigNumber = require('bignumber.js'); // npm install bignumber.js
+const oneEth = new BigNumber(1000000000000000000); // 1 eth
 
 var assert = require("assert");
 var IAM = artifacts.require("../contracts/IAM.sol");
+var Campaign = artifacts.require("../contracts/Campaign.sol");
 var CampaignFactory = artifacts.require("../contracts/CampaignFactory.sol");
 
 contract ("Campaign", function(accounts){
@@ -12,8 +15,9 @@ contract ("Campaign", function(accounts){
     });
     
     console.log("Testing IAM contract");
-    
-    // Using emitted logs to track status
+    let camp1;
+
+    // Using emitted events to track status
     it("IAM01-1: Registering of beneficiary [Pass]", async() => {
         let setDist = await IAMInstance.add(accounts[0]);
         // Beneficiary status should be verified upon add
@@ -30,7 +34,7 @@ contract ("Campaign", function(accounts){
     });
 
     it("IAM02: Locking of a beneficiary [Pass]", async() => {
-        let setLock = await IAMInstance.setLocked(accounts[0]);
+        await IAMInstance.setLocked(accounts[0]);
         let bStatus = await IAMInstance.getStatus(accounts[0]);
         await assert.equal(
             bStatus.toString(),
@@ -39,7 +43,7 @@ contract ("Campaign", function(accounts){
     });
 
     it("IAM03: Distrust of a beneficiary [Pass]", async() => {
-        let setDist = await IAMInstance.setDistrust(accounts[0]);
+        await IAMInstance.setDistrust(accounts[0]);
         let bStatus = await IAMInstance.getStatus(accounts[0]);
         await assert.equal(
             bStatus.toString(),
@@ -52,6 +56,7 @@ contract ("Campaign", function(accounts){
     it("CAMF01: Create Campaign with addCampaign() [Pass]", async() => {
         await IAMInstance.setVerified(accounts[0]);
         let addC = await campaignFactoryInstance.addCampaign({from: accounts[0]});
+        camp1 = await addC['logs'][0]['args'][1];
         truffleAssert.eventEmitted(addC, 'mountCampaign');
     });
 
@@ -112,21 +117,42 @@ contract ("Campaign", function(accounts){
             "Maximum active charities reached"
         );
     });
-
+    
     console.log("Testing Campaign contract");
 
     it("CAM01: Donate to campaign [Pass]", async() => {
+        await IAMInstance.add(accounts[2]);
+        campaignInstance = await Campaign.at(camp1);
+        let donate = await campaignInstance.donate({from: accounts[2], value: 10});
+        truffleAssert.eventEmitted(donate, 'donationMade'); 
     });
 
     it("CAM02: Donate to campaign with invalid value [Fail]", async() => {
+        await truffleAssert.reverts(
+            campaignInstance.donate({from: accounts[2], value: 0}),
+            "Invalid donation amount"
+        );
+
+        await truffleAssert.fails(
+            campaignInstance.donate({from: accounts[2], value: oneEth.multipliedBy(1000)})
+        );
     });
 
     it("CAM03: Owner withdraw campaign before due date [Fail]", async() => {
+        await truffleAssert.reverts(
+            campaignInstance.withdraw({from: accounts[0]}),
+            "Campaign is ongoing"
+        );
     });
 
     it("CAM04: Not Owner withdraw campaign [Fail]", async() => {
+        await truffleAssert.reverts(
+            campaignInstance.withdraw({from: accounts[1]}),
+            "Caller is not owner"
+        );
     });
 
     it("CAM05: Owner withdraw campaign [Pass]", async() => {
+        
     });
 });
