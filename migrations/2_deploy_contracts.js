@@ -1,11 +1,9 @@
 // 2_deploy_contracts.js
-const HelloWorld = artifacts.require("HelloWorld");
 const CampaignFactory = artifacts.require("TestCampaignFactory");
 const IAM = artifacts.require("IAM");
 
 module.exports = (deployer, network, accounts) => {
   let iam;
-  deployer.deploy(HelloWorld);
   deployer.deploy(IAM).then(instance => {
     iam = instance;
     // Deploy CampaignFactory contract
