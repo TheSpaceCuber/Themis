@@ -4,6 +4,9 @@ import "./Campaign.sol";
 import "./IAM.sol";
 
 contract CampaignFactory {
+
+    function() payable external {}
+
     address owner;
     IAM IAMContract;
     uint8 MAX_CHARITIES = 5;
