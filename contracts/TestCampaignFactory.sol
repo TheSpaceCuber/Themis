@@ -9,6 +9,7 @@ contract TestCampaignFactory {
     uint8 MAX_CHARITIES = 5;
     uint16 HoursInYear = 8760;
     uint16 SecsInHour = 3600;
+    uint256 secondsInSixMonths = 15768000;
 
     mapping(address => address[]) orgCampaigns;
 
@@ -18,7 +19,7 @@ contract TestCampaignFactory {
     event campaignDeleted(address organisation, address campaign);
     event orgDeleted(address organisation);
     event refundComplete(address organisation);
-    
+
     constructor(IAM IAMaddress) public {
         owner = msg.sender;
         IAMContract = IAMaddress;
@@ -36,11 +37,11 @@ contract TestCampaignFactory {
     }
 
     // --- GETTERS / SETTERS ---
-    
+
     function isVerified(address organisation) public view returns (bool) {
         return IAMContract.isVerified(organisation);
     }
-    
+
     function isLocked(address organisation) public view returns (bool) {
         return IAMContract.isLocked(organisation);
     }
@@ -53,6 +54,10 @@ contract TestCampaignFactory {
         return uint256(SecsInHour  * hrs);
     }
 
+    function secondsInSixMonths() private view returns (uint256) {
+        return hoursToSeconds(HoursInYear) / 2;
+    }
+
     function getCampaignsOfOrg(address organisation) public view returns (address[] memory) {
         return orgCampaigns[organisation];
     }
@@ -61,11 +66,11 @@ contract TestCampaignFactory {
     // overloaded
     function addCampaign() public verifiedOnly returns (TestCampaign) {
         require(orgCampaigns[msg.sender].length < MAX_CHARITIES, "Maximum active charities reached");
-        
+
         uint256 durationSecs = hoursToSeconds(HoursInYear);
         TestCampaign c = new TestCampaign(durationSecs, msg.sender, IAMContract);
         orgCampaigns[msg.sender].push(address(c));
-        
+
         emit mountCampaign(msg.sender, address(c), HoursInYear);
         return c;
     }
@@ -76,11 +81,11 @@ contract TestCampaignFactory {
         require(durationHrs >= 24, "Minimum duration (hrs) is 24 hour");
         require(durationHrs <= HoursInYear, "Maximum duration (in hrs) is 1 year");
         require(orgCampaigns[msg.sender].length < MAX_CHARITIES, "Maximum active charities reached");
-        
+
         uint256 durationSecs = hoursToSeconds(durationHrs);
         TestCampaign c = new TestCampaign(durationSecs, msg.sender, IAMContract);
         orgCampaigns[msg.sender].push(address(c));
-        
+
         emit mountCampaign(msg.sender, address(c), durationHrs);
         return c;
     }
@@ -93,7 +98,7 @@ contract TestCampaignFactory {
         require(msg.sender == address(campaign), "Not called from Campaign contract");
 
         // delete campaign from active list
-        uint256 len = orgCampaigns[organisation].length - 1;        
+        uint256 len = orgCampaigns[organisation].length - 1;
         for (uint i = 0; i < len; i++) {
             if (orgCampaigns[organisation][i+1] != address(campaign)) {
                 orgCampaigns[organisation][i] = orgCampaigns[organisation][i+1];
@@ -112,22 +117,23 @@ contract TestCampaignFactory {
         ownerAddr.transfer(amount);
         emit commissionWithdrawn(amount);
     }
-    
-    function refundAllCampaigns(address organisation) public ownerOnly {
+
+    function deleteDistrustedOrg(address organisation) public ownerOnly {
         require(isDistrust(organisation) == true, "Organisation status is not distrust");
+        require(block.timestamp >= IAMContract.getRefundPeriod(organisation) + secondsInSixMonths(), "Refund period is ongoing");
         uint256 len = orgCampaigns[organisation].length - 1;
         for (int i = int(len); i >= 0; i--) {
             TestCampaign c = TestCampaign(orgCampaigns[organisation][uint256(i)]);
-            c.refund(address(c)); // placeholder
-            deleteCampaignFromMapping(organisation, address(c));
+            c.returnRemainingBalance();
+            deleteCampaignFromMapping(organisation, c);
         }
         deleteOrgFromMapping(organisation);
         emit refundComplete(organisation);
     }
 
-    function deleteCampaignFromMapping(address organisation, address campaignAddr) private {
+    function deleteCampaignFromMapping(address organisation, TestCampaign campaign) private {
         orgCampaigns[organisation].pop();
-        emit campaignDeleted(organisation, campaignAddr);
+        emit campaignDeleted(organisation, address(campaign));
     }
 
     function deleteOrgFromMapping(address organisation) private {

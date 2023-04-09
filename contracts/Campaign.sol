@@ -16,9 +16,10 @@ contract Campaign {
     event donationMade(address donor, uint256 donatedAmt);
     event hasWithdrawn(address from, uint256 totalDonationAmt);
     event hasRefunded(address donor, uint256 refundedAmt);
+    event hasReturnedBalance(address from, uint256 returnedAmt);
 
-    constructor(uint256 secs, address orgAddress, IAM IAMaddress 
-        ) public {
+    constructor(uint256 secs, address orgAddress, IAM IAMaddress
+    ) public {
         endDatetime = block.timestamp + secs;
         owner = orgAddress;
         campaignFactory = msg.sender;
@@ -57,7 +58,7 @@ contract Campaign {
     }
 
     // --- GETTERS / SETTERS ---
-    
+
     function isVerifiedOwner() public view returns (bool) {
         return IAMContract.isVerified(owner);
     }
@@ -94,7 +95,7 @@ contract Campaign {
     function getTotalDonated() public view returns (uint256) {
         return totalDonated;
     }
-    
+
     // --- FUNCTIONS ---
     function donate() public payable verifiedOnly ongoingCampaignOnly {
         require(msg.value > 0, "Invalid donation amount");
@@ -104,7 +105,7 @@ contract Campaign {
 
     function withdraw() public ownerOnly verifiedOnly pastLockoutOnly {
         uint256 commission = (totalDonated * commissionBP) / basispoints;
-        
+
         address payable campgnFactory = address(uint160(campaignFactory));
         address payable beneficiary = address(uint160(owner));
         uint256 netDonationAmt =  totalDonated - commission;
@@ -116,7 +117,7 @@ contract Campaign {
         CampaignFactory(campaignFactory).closeCampaign(owner, this);
     }
 
-    // pseudo-code for follow up    
+    // pseudo-code for follow up
     function refund(address campaignAddr) public campaignFactoryOnly distrustOnly {
 
         //retrieve past transactions/events here using campaignAddr
@@ -135,5 +136,12 @@ contract Campaign {
             //emit hasRefunded(sender, value);
         }
         */
+    }
+
+    function returnRemainingBalance() public campaignFactoryOnly distrustOnly {
+        address payable campgnFactory = address(uint160(campaignFactory));
+        uint256 remainingBalance =  address(this).balance;
+        campgnFactory.transfer(remainingBalance);
+        emit hasReturnedBalance(address(this), remainingBalance);
     }
 }
