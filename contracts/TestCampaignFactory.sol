@@ -9,7 +9,6 @@ contract TestCampaignFactory {
     uint8 MAX_CHARITIES = 5;
     uint16 HoursInYear = 8760;
     uint16 SecsInHour = 3600;
-    uint256 secondsInSixMonths = 15768000;
 
     mapping(address => address[]) orgCampaigns;
 
