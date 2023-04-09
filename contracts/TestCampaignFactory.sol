@@ -4,9 +4,6 @@ import "./IAM.sol";
 import "./TestCampaign.sol";
 
 contract TestCampaignFactory {
-
-    function() payable external {}
-
     address owner;
     IAM IAMContract;
     uint8 MAX_CHARITIES = 5;
@@ -61,6 +58,10 @@ contract TestCampaignFactory {
     }
 
     // --- FUNCTIONS ---
+
+    // For receiving payment
+    function() payable external {}
+
     // overloaded
     function addCampaign() public verifiedOnly returns (TestCampaign) {
         require(orgCampaigns[msg.sender].length < MAX_CHARITIES, "Maximum active charities reached");

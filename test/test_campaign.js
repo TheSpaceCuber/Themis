@@ -14,8 +14,6 @@ contract ("Campaign", function(accounts){
         campaignFactoryInstance = await CampaignFactory.deployed();
     });
 
-    let camp1;
-
     // Using emitted events to track status
     it("IAM01-1: Registering of beneficiary [Pass]", async() => {
         let setDist = await IAMInstance.add(accounts[0]);
@@ -62,6 +60,7 @@ contract ("Campaign", function(accounts){
         );
     });
 
+    let camp1;
     it("CAMFAC02: Create campaign with addCampaign() [Pass]", async() => {
         await IAMInstance.setVerified(accounts[0]);
         let addC = await campaignFactoryInstance.addCampaign({from: accounts[0]});
