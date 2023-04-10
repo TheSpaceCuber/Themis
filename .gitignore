@@ -1,6 +1,6 @@
 .vscode/
 build/
-
+contracts/artifacts/
 # Logs
 logs
 *.log

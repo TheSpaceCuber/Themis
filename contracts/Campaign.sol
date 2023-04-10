@@ -115,25 +115,11 @@ contract Campaign {
 
         CampaignFactory(campaignFactory).closeCampaign(owner, this);
     }
-
-    // pseudo-code for follow up    
-    function refund(address campaignAddr) public campaignFactoryOnly distrustOnly {
-
-        //retrieve past transactions/events here using campaignAddr
-        /*
-        let contractJSON = require('./CampaignTest.json');
-        let contractABI = contractJSON.abi;
-
-        let CampaignTestContract = new web3.eth.Contract(contractABI, campaignAddr);
-
-        CampaignTestContract.getPastEvents("donationMade", options, (error, events) => {
-        if (error) {
-            console.log(error);
-        } else {
-            //for each event, parse out sender and value
-            //sender.transfer(value)
-            //emit hasRefunded(sender, value);
-        }
-        */
+    
+    function refund(address payable donor, uint256 amt) public distrustOnly {
+        require(amt > 0, "No amount to refund");
+        require(msg.sender == donor);
+        donor.transfer(amt);
+        emit hasRefunded(donor, amt);
     }
 }

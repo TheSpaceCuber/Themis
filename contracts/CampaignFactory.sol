@@ -118,7 +118,7 @@ contract CampaignFactory {
         uint256 len = orgCampaigns[organisation].length - 1;
         for (int i = int(len); i >= 0; i--) {
             Campaign c = Campaign(orgCampaigns[organisation][uint256(i)]);
-            c.refund(address(c)); // placeholder
+            // c.refund(address(c)); // placeholder
             deleteCampaignFromMapping(organisation, address(c));
         }
         deleteOrgFromMapping(organisation);
