@@ -4,7 +4,7 @@ import "./IAM.sol";
 import "./CampaignFactory.sol";
 
 contract Campaign {
-    address campaignFactory;
+    address payable campaignFactory;
     address owner;
     uint256 endDatetime;
     IAM IAMContract;
