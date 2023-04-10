@@ -116,18 +116,6 @@ contract CampaignFactory {
         ownerAddr.transfer(amount);
         emit commissionWithdrawn(amount);
     }
-    
-    function refundAllCampaigns(address organisation) public ownerOnly {
-        require(isDistrust(organisation) == true, "Organisation status is not distrust");
-        uint256 len = orgCampaigns[organisation].length - 1;
-        for (int i = int(len); i >= 0; i--) {
-            Campaign c = Campaign(orgCampaigns[organisation][uint256(i)]);
-            // c.refund(address(c)); // placeholder
-            deleteCampaignFromMapping(organisation, address(c));
-        }
-        deleteOrgFromMapping(organisation);
-        emit refundComplete(organisation);
-    }
 
     function deleteCampaignFromMapping(address organisation, address campaignAddr) private {
         orgCampaigns[organisation].pop();
