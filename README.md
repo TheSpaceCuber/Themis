@@ -1,4 +1,4 @@
-# DocChain
+# Themis
  
 ## Setup
 1. Install [NodeJS](https://nodejs.org/en/download/)
@@ -10,4 +10,10 @@ npm install truffle -g
 4. Install dependencies
 ```
 npm i
+```
+5. Create a .env file with the following variables
+```sh
+GANACHE_URL=http://localhost:7545
+IAM_ADDRESS=
+CAMPAIGN_FACTORY_ADDRESS=
 ```

@@ -62,6 +62,10 @@ contract CampaignFactory {
     }
 
     // --- FUNCTIONS ---
+    
+    // For receiving payment
+    function() payable external {}
+    
     // overloaded
     function addCampaign() public verifiedOnly returns (Campaign) {
         require(orgCampaigns[msg.sender].length < MAX_CHARITIES, "Maximum active charities reached");
