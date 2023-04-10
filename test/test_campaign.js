@@ -14,15 +14,15 @@ contract ("Campaign", function(accounts){
         campaignFactoryInstance = await CampaignFactory.deployed();
     });
 
-    // Using emitted events to track status
-    it("IAM01-1: Registering of beneficiary [Pass]", async() => {
-        let setDist = await IAMInstance.add(accounts[0]);
+    
+    it("IAM01: Registering of beneficiary [Pass]", async() => {
         // Beneficiary status should be verified upon add
+        let setDist = await IAMInstance.add(accounts[0]);
+        
+        // Using emitted events to track status
         truffleAssert.eventEmitted(setDist, 'addVerifiedOrg'); 
-    });
-
-    // Using getStatus to track status
-    it("IAM01-2: Registering of beneficiary [Pass]", async() => {
+        
+        // Using getStatus to track status
         let bStatus = await IAMInstance.getStatus(accounts[0]);
         await assert.equal(
             bStatus.toString(),
@@ -30,6 +30,7 @@ contract ("Campaign", function(accounts){
         );
     });
 
+    // From previous case, can assume that beneficiary status is verified
     it("IAM02: Locking of a beneficiary [Pass]", async() => {
         await IAMInstance.setLocked(accounts[0]);
         let bStatus = await IAMInstance.getStatus(accounts[0]);
@@ -39,6 +40,7 @@ contract ("Campaign", function(accounts){
         );
     });
 
+    // From previous case, can assume that beneficiary status is locked
     it("IAM03: Distrust of a beneficiary [Pass]", async() => {
         await IAMInstance.setDistrust(accounts[0]);
         let bStatus = await IAMInstance.getStatus(accounts[0]);
@@ -48,6 +50,7 @@ contract ("Campaign", function(accounts){
         );
     });
 
+    // From previous case, can assume that beneficiary status is distrust
     it("CAMFAC01: Add campaign while account status not verified. [Pass]", async() => {
         await truffleAssert.reverts(
             campaignFactoryInstance.addCampaign({from: accounts[0]}),
