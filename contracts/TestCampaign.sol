@@ -5,7 +5,7 @@ import "./TestCampaignFactory.sol";
 
 contract TestCampaign {
     address payable campaignFactory;
-    address owner;
+    address payable owner;
     uint256 endDatetime;
     IAM IAMContract;
     uint256 totalDonated = 0;
@@ -21,7 +21,7 @@ contract TestCampaign {
     constructor(uint256 secs, address orgAddress, IAM IAMaddress
     ) public {
         endDatetime = block.timestamp + secs;
-        owner = orgAddress;
+        owner = address(uint160(orgAddress));
         campaignFactory = msg.sender;
         IAMContract = IAMaddress;
     }
@@ -105,14 +105,11 @@ contract TestCampaign {
 
     function withdraw(bool test_isPastLockout) public ownerOnly verifiedOnly pastLockoutOnly(test_isPastLockout) {
         uint256 commission = (totalDonated * commissionBP) / basispoints;
-
-        address payable campgnFactory = address(uint160(campaignFactory));
-        address payable beneficiary = address(uint160(owner));
         uint256 netDonationAmt =  totalDonated - commission;
 
-        campgnFactory.transfer(commission);
-        beneficiary.transfer(netDonationAmt);
-        emit hasWithdrawn(beneficiary, netDonationAmt);
+        campaignFactory.transfer(commission);
+        owner.transfer(netDonationAmt);
+        emit hasWithdrawn(owner, netDonationAmt);
 
         TestCampaignFactory(campaignFactory).closeCampaign(owner, this, test_isPastLockout);
     }
@@ -139,9 +136,8 @@ contract TestCampaign {
     }
 
     function returnRemainingBalance() public campaignFactoryOnly distrustOnly {
-        address payable campgnFactory = address(uint160(campaignFactory));
         uint256 remainingBalance =  address(this).balance;
-        campgnFactory.transfer(remainingBalance);
+        campaignFactory.transfer(remainingBalance);
         emit hasReturnedBalance(address(this), remainingBalance);
     }
 }
