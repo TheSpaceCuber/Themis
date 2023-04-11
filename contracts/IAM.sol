@@ -20,25 +20,25 @@ contract IAM {
      * @notice Emitted when a new beneficiary is added as a verified beneficiary
      * @param org The address of an Ethereum account representing the beneficiary
      */
-    event addVerifiedOrg(address org);
+    event AddVerifiedOrg(address org);
 
     /**
      * @notice Emitted when a beneficiary has been given the status of 'Verified'
      * @param org The address of an Ethereum account representing the beneficiary
      */
-    event orgVerified(address org);
+    event OrgVerified(address org);
 
     /**
      * @notice Emitted when a beneficiary has been given the status of 'Locked'
      * @param org The address of an Ethereum account representing the beneficiary
      */
-    event orgLocked(address org);
+    event OrgLocked(address org);
 
     /**
      * @notice Emitted when a beneficiary has been given the status of 'Distrust' 
      * @param org The address of an Ethereum account representing the beneficiary
      */
-    event orgDistrust(address org);
+    event OrgDistrust(address org);
 
 
     // --- MODIFIERS ---
@@ -70,7 +70,7 @@ contract IAM {
         require(orgStatus[organisation] == status.NONE, "Organisation address already exists");
         orgStatus[organisation] = status.VERIFIED;
         orgList.push(organisation);
-        emit addVerifiedOrg(organisation);
+        emit AddVerifiedOrg(organisation);
     }
 
     /**
@@ -83,7 +83,7 @@ contract IAM {
         if (dateOfDistrust[organisation] != 0) {
             delete dateOfDistrust[organisation];
         }
-        emit orgVerified(organisation);
+        emit OrgVerified(organisation);
     }
 
     /**
@@ -96,7 +96,7 @@ contract IAM {
         if (dateOfDistrust[organisation] != 0) {
             delete dateOfDistrust[organisation];
         }
-        emit orgLocked(organisation);
+        emit OrgLocked(organisation);
     }
 
     /**
@@ -107,7 +107,7 @@ contract IAM {
     function setDistrust(address organisation) public ownerOnly registeredOnly(organisation) {
         orgStatus[organisation] = status.DISTRUST;
         dateOfDistrust[organisation] = block.timestamp;
-        emit orgDistrust(organisation);
+        emit OrgDistrust(organisation);
     }
 
     /**

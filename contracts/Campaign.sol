@@ -25,14 +25,14 @@ contract Campaign {
      * @param endDatetime The Unix timestamp when the contract is scheduled to end
      * @param totalDonated The total amount of money donated to the point of this event being emitted
      */
-    event campaignInfoRetrieved(address owner, string status, uint256 endDatetime, uint256 totalDonated);
+    event CampaignInfoRetrieved(address owner, string status, uint256 endDatetime, uint256 totalDonated);
 
     /**
      * @notice Emitted when a donation is made to the campaign
      * @param donor The address representing the donor who has donated
      * @param donatedAmt The amount of money donated by the donor
      */
-    event donationMade(address donor, uint256 donatedAmt);
+    event DonationMade(address donor, uint256 donatedAmt);
 
     /**
      * @notice Emitted when the beneficiary has taken out the donation pool from this campaign
@@ -40,14 +40,14 @@ contract Campaign {
      * @param from The address that the donation pool has been transferred to (should be owner variable)
      * @param totalDonationAmt The value of the donation pool at the time of withdrawal
      */
-    event hasWithdrawn(address from, uint256 totalDonationAmt);
+    event HasWithdrawn(address from, uint256 totalDonationAmt);
 
     /**
      * @notice Emitted when a donor has taken his/her donation back in the event that this campaign is distrusted
      * @param donor The address of the donor who has gotten a refund
      * @param refundedAmt The value of the refund
      */
-    event hasRefunded(address donor, uint256 refundedAmt);
+    event HasRefunded(address donor, uint256 refundedAmt);
 
     /**
      * @notice Emitted when the remaining unclaimed donations has been transferred to CampaignFactory contract
@@ -55,7 +55,7 @@ contract Campaign {
      * @param from This Campaign contract address
      * @param returnedAmt The value of the unclaimed donations transferred
      */
-    event hasReturnedBalance(address from, uint256 returnedAmt);
+    event HasReturnedBalance(address from, uint256 returnedAmt);
 
 
     // --- MODIFIERS ---
@@ -120,7 +120,7 @@ contract Campaign {
         } else {
             status = "Distrust";
         }
-        emit campaignInfoRetrieved(owner, status, endDatetime, totalDonated);
+        emit CampaignInfoRetrieved(owner, status, endDatetime, totalDonated);
     }
 
     /**
@@ -130,7 +130,7 @@ contract Campaign {
     function donate() public payable verifiedOnly ongoingCampaignOnly {
         require(msg.value > 0, "Invalid donation amount");
         totalDonated += msg.value;
-        emit donationMade(msg.sender, msg.value);
+        emit DonationMade(msg.sender, msg.value);
     }
 
     /**
@@ -144,7 +144,7 @@ contract Campaign {
 
         campaignFactory.transfer(commission);
         owner.transfer(netDonationAmt);
-        emit hasWithdrawn(owner, netDonationAmt);
+        emit HasWithdrawn(owner, netDonationAmt);
 
         CampaignFactory(campaignFactory).closeCampaign(owner, this);
     }
@@ -164,13 +164,13 @@ contract Campaign {
 
         let CampaignTestContract = new web3.eth.Contract(contractABI, campaignAddr);
 
-        CampaignTestContract.getPastEvents("donationMade", options, (error, events) => {
+        CampaignTestContract.getPastEvents("DonationMade", options, (error, events) => {
         if (error) {
             console.log(error);
         } else {
             //for each event, parse out sender and value
             //sender.transfer(value)
-            //emit hasRefunded(sender, value);
+            //emit HasRefunded(sender, value);
         }
         */
     }
@@ -183,7 +183,7 @@ contract Campaign {
     function returnRemainingBalance() public campaignFactoryOnly distrustOnly {
         uint256 remainingBalance =  address(this).balance;
         campaignFactory.transfer(remainingBalance);
-        emit hasReturnedBalance(address(this), remainingBalance);
+        emit HasReturnedBalance(address(this), remainingBalance);
     }
 
     /**

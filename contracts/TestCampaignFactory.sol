@@ -24,20 +24,20 @@ contract TestCampaignFactory {
      * @param campaign The address of the newly instantiated Campaign contract
      * @param durationHrs The duration that the campaign will run for
      */
-    event mountCampaign(address organisation, address campaign, uint256 durationHrs);
+    event MountCampaign(address organisation, address campaign, uint256 durationHrs);
 
     /**
      * @notice Emitted when a campaign has ended and is closed
      * @param organisation The beneficiary that was in-charge of the campaign
      * @param campaign The address of the closing Campaign contract
      */
-    event campaignEnded(address organisation, address campaign);
+    event CampaignEnded(address organisation, address campaign);
 
     /**
      * @notice Emitted when the commission money in this CampaignFactory contract is withdrawn
      * @param amt The value of the commission withdrawn
      */
-    event commissionWithdrawn(uint256 amt);
+    event CommissionWithdrawn(uint256 amt);
 
     /**
      * @notice Emitted when a campaign contract has been deleted. Used when a campaign or its 
@@ -45,20 +45,20 @@ contract TestCampaignFactory {
      * @param organisation The beneficiary that was running the campaign
      * @param campaign The address of the deleted Campaign contract
      */
-    event campaignDeleted(address organisation, address campaign);
+    event CampaignDeleted(address organisation, address campaign);
 
     /**
      * @notice Emitted when a beneficiary has been deleted from this contract's orgCampaigns mapping
      * @param organisation The beneficiary that has been deleted
      */
-    event orgDeleted(address organisation);
+    event OrgDeleted(address organisation);
 
     /**
      * @notice Emitted when all donations made to an untrustworthy campaign has been refunded, including
      * transferring any unclaimed donations to this CampaignFactory contract
      * @param organisation The beneficiary that was in-charge of the distrusted campaign
      */
-    event refundComplete(address organisation);
+    event RefundComplete(address organisation);
 
 
     // --- MODIFIERS ---
@@ -101,7 +101,7 @@ contract TestCampaignFactory {
         TestCampaign c = new TestCampaign(durationSecs, msg.sender, IAMContract);
         orgCampaigns[msg.sender].push(address(c));
 
-        emit mountCampaign(msg.sender, address(c), HoursInYear);
+        emit MountCampaign(msg.sender, address(c), HoursInYear);
         return c;
     }
 
@@ -119,7 +119,7 @@ contract TestCampaignFactory {
         TestCampaign c = new TestCampaign(durationSecs, msg.sender, IAMContract);
         orgCampaigns[msg.sender].push(address(c));
 
-        emit mountCampaign(msg.sender, address(c), durationHrs);
+        emit MountCampaign(msg.sender, address(c), durationHrs);
         return c;
     }
 
@@ -147,7 +147,7 @@ contract TestCampaignFactory {
             }
         }
         orgCampaigns[organisation].pop();
-        emit campaignEnded(organisation, address(campaign));
+        emit CampaignEnded(organisation, address(campaign));
     }
 
     /**
@@ -160,7 +160,7 @@ contract TestCampaignFactory {
         uint256 amount = address(this).balance;
 
         ownerAddr.transfer(amount);
-        emit commissionWithdrawn(amount);
+        emit CommissionWithdrawn(amount);
     }
 
     /**
@@ -178,7 +178,7 @@ contract TestCampaignFactory {
             deleteCampaignFromMapping(organisation, c);
         }
         deleteOrgFromMapping(organisation);
-        emit refundComplete(organisation);
+        emit RefundComplete(organisation);
     }
 
     /**
@@ -227,7 +227,7 @@ contract TestCampaignFactory {
      */
     function deleteCampaignFromMapping(address organisation, TestCampaign campaign) private {
         orgCampaigns[organisation].pop();
-        emit campaignDeleted(organisation, address(campaign));
+        emit CampaignDeleted(organisation, address(campaign));
     }
 
     /**
@@ -236,7 +236,7 @@ contract TestCampaignFactory {
      */
     function deleteOrgFromMapping(address organisation) private {
         delete orgCampaigns[organisation];
-        emit orgDeleted(organisation);
+        emit OrgDeleted(organisation);
     }
 
     /**
