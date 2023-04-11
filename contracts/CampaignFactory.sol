@@ -238,7 +238,7 @@ contract CampaignFactory {
     /**
      * @notice Converts hours to seconds
      * @param hrs Time in hours
-     * @param Time in seconds
+     * @return Time in seconds
      */
     function hoursToSeconds(uint16 hrs) private view returns (uint256) {
         return uint256(SecsInHour  * hrs);
