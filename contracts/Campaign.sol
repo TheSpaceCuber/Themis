@@ -56,14 +56,6 @@ contract Campaign {
      */
     event hasReturnedBalance(address from, uint256 returnedAmt);
 
-    constructor(uint256 secs, address orgAddress, IAM IAMaddress
-    ) public {
-        endDatetime = block.timestamp + secs;
-        owner = address(uint160(orgAddress));
-        campaignFactory = msg.sender;
-        IAMContract = IAMaddress;
-    }
-
     // --- MODIFIERS ---
     modifier ownerOnly() {
         require(owner == msg.sender, "Caller is not owner");
@@ -93,6 +85,13 @@ contract Campaign {
     modifier pastLockoutOnly() {
         require(isPastLockout() == true, "Campaign is ongoing");
         _;
+    }
+
+    constructor(uint256 secs, address orgAddress, IAM IAMaddress) public {
+        endDatetime = block.timestamp + secs;
+        owner = address(uint160(orgAddress));
+        campaignFactory = msg.sender;
+        IAMContract = IAMaddress;
     }
 
     // --- GETTERS / SETTERS ---

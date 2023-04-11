@@ -40,9 +40,6 @@ contract IAM {
      */
     event orgDistrust(address org);
 
-    constructor() public {
-        owner = msg.sender;
-    }
 
     // --- MODIFIERS ---
     modifier ownerOnly() {
@@ -55,7 +52,12 @@ contract IAM {
         _;
     }
 
+
     // --- FUNCTIONS ---
+    constructor() public {
+        owner = msg.sender;
+    }
+
     /**
      * @notice Adds a beneficiary to the list of verified organisations in this IAM contract
      * @dev Can only be called by the owner of IAM contract. Verification of beneficiary is done off the chain
