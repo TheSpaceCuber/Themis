@@ -5,21 +5,40 @@ import "./CampaignFactory.sol";
 /**
  * @title The identity access manager for Themis
  * @author IS4302 Group 11
- * @notice Stores approved beneficiaries who can use Themis to run donation campaigns.
- * @dev This contract will be referenced when CampaignFactory contract needs to verify a beneficiary.
+ * @notice Stores approved beneficiaries who can use Themis to run donation campaigns
+ * @dev This contract will be referenced when CampaignFactory contract needs to verify a beneficiary
  */
 contract IAM {
     address owner;
-
-    // the NONE status maps to 0; for unmapped addresses
+    // The NONE status maps to 0; for unmapped addresses
     enum status { NONE, VERIFIED, LOCK, DISTRUST }
     mapping(address => status) orgStatus;
     mapping(address => uint256) dateOfDistrust;
     address[] orgList;
 
+    /**
+     * @notice Emitted when an beneficiary is added to the list of verified beneficiaries (orgList)
+     * @param org The address of an Ethereum account representing the beneficiary
+     */
     event addVerifiedOrg(address org);
+
+    /**
+     * @notice Emitted when a beneficiary has been given the status of 'Verified'
+     * @param org The address of an Ethereum account representing the beneficiary
+     */
     event orgVerified(address org);
+
+    /**
+     * @notice Emitted when a beneficiary has been given the status of 'Locked'
+     * @param
+     */
     event orgLocked(address org);
+
+    /**
+     * @notice 
+     * @dev
+     * @param
+     */
     event orgDistrust(address org);
 
     constructor() public {
