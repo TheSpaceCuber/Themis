@@ -14,7 +14,7 @@ contract CampaignFactory {
     uint8 MAX_CHARITIES = 5;
     uint16 HoursInYear = 8760;
     uint16 SecsInHour = 3600;
-    mapping(address => address[]) orgCampaigns;
+    mapping(address => address[]) orgCampaigns; // Maintains active campaigns only
 
     /**
      * @notice Emitted when a new Campaign contract is instantiated
@@ -146,7 +146,10 @@ contract CampaignFactory {
         emit campaignEnded(organisation, address(campaign));
     }
 
-    // withdraw commission
+    /**
+     * @notice Allows the manager of this CampaignFactory contract to take out all collected commissions
+     * to date
+     */
     function withdrawCommissions() public ownerOnly {
         require(address(this).balance > 0, "No remaining balance");
         address payable ownerAddr = address(uint160(owner));
@@ -156,6 +159,11 @@ contract CampaignFactory {
         emit commissionWithdrawn(amount);
     }
 
+    /**
+     * @notice Deletes an untrustworthy beneficiary from this contract's orgCampaigns mapping
+     * @dev This does not affect the status of the beneficiary in the IAM contract
+     * @param organisation The address of the beneficiary that will be deleted from orgCampaigns
+     */
     function deleteDistrustedOrg(address organisation) public ownerOnly {
         require(isDistrust(organisation) == true, "Organisation status is not distrust");
         require(block.timestamp >= IAMContract.getRefundPeriod(organisation) + secondsInSixMonths(), "Refund period is ongoing");
@@ -169,18 +177,38 @@ contract CampaignFactory {
         emit refundComplete(organisation);
     }
 
+    /**
+     * @notice Checks if a beneficiary has the 'Verified' status
+     * @param organisation The address representing the beneficiary to check
+     * @return true if the beneficiary has a 'Verified' status, false otherwise
+     */
     function isVerified(address organisation) public view returns (bool) {
         return IAMContract.isVerified(organisation);
     }
 
+    /**
+     * @notice Checks if a beneficiary has a 'Locked' status
+     * @param organisation The address representing the beneficiary to check
+     * @return true if the beneficiary has a "Locked' status, false otherwise    
+     */
     function isLocked(address organisation) public view returns (bool) {
         return IAMContract.isLocked(organisation);
     }
 
+    /**
+     * @notice Checks if a beneficiary has a 'Distrust' status
+     * @param organisation The address representing the beneficiary to check
+     * @return true if the beneficiary has a 'Distrust' status, false otherwise
+     */
     function isDistrust(address organisation) public view returns (bool) {
         return IAMContract.isDistrust(organisation);
     }
 
+    /**
+     * @notice Gets an array of all active campaigns run by a beneficiary
+     * @param organisation The address of the beneficiary to look up
+     * @return An array of all active campaigns run by specified beneficiary
+     */
     function getCampaignsOfOrg(address organisation) public view returns (address[] memory) {
         return orgCampaigns[organisation];
     }
