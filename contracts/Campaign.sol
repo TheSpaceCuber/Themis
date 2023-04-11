@@ -103,6 +103,12 @@ contract Campaign {
         IAMContract = IAMaddress;
     }
 
+    /**
+     * @notice Retrieve information about this campaign, including its status, ending timestamp,
+     * the beneficiary in-charge, and the total amount of money donated so far
+     * @dev The status names in this function follows that of the status enumeration variable in
+     * the IAM contract
+     */
     function getCampaignInfo() public {
         uint256 statusInt = uint256(IAMContract.getStatus(owner));
         string memory status;
@@ -116,12 +122,21 @@ contract Campaign {
         emit campaignInfoRetrieved(owner, status, endDatetime, totalDonated);
     }
 
+    /**
+     * @notice Allows donors to donate to this Campaign contract.
+     * @dev This function only works if the campaign's status is 'Verified' and ongoing
+     */
     function donate() public payable verifiedOnly ongoingCampaignOnly {
         require(msg.value > 0, "Invalid donation amount");
         totalDonated += msg.value;
         emit donationMade(msg.sender, msg.value);
     }
 
+    /**
+     * @notice Allows the managing beneficiary to take the donations from this Campaign contract after
+     * the campaign has ended and is not under suspicion for fraud
+     * @dev Commission will also be transferred to CampaignFactory contract from this function
+     */
     function withdraw() public ownerOnly verifiedOnly pastLockoutOnly {
         uint256 commission = (totalDonated * commissionBP) / basispoints;
         uint256 netDonationAmt =  totalDonated - commission;
@@ -133,7 +148,12 @@ contract Campaign {
         CampaignFactory(campaignFactory).closeCampaign(owner, this);
     }
 
-    // pseudo-code for follow up
+    /**
+     * @notice Allows donors to reclaim their donations in the event that this campaign or the managing
+     * beneficiary is deemed to be untrustworthy
+     * @dev Currently only contains pseduocode
+     * @param campaignAddr The address of this Campaign contract
+     */
     function refund(address campaignAddr) public campaignFactoryOnly distrustOnly {
 
         //retrieve past transactions/events here using campaignAddr
@@ -154,6 +174,11 @@ contract Campaign {
         */
     }
 
+    /**
+     * @notice Allows the CampaignFactory contract to transfer any unclaimed donations to itself in the
+     * event that campaign or managing beneficiary is deemed to be untrustworthy
+     * @dev The time to call this function is left to the discretion of the CampaignFactory contract
+     */
     function returnRemainingBalance() public campaignFactoryOnly distrustOnly {
         uint256 remainingBalance =  address(this).balance;
         campaignFactory.transfer(remainingBalance);
