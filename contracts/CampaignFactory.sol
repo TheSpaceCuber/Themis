@@ -36,6 +36,10 @@ contract CampaignFactory {
     }
 
     // --- GETTERS / SETTERS ---
+    constructor(IAM IAMaddress) public {
+        owner = msg.sender;
+        IAMContract = IAMaddress;
+    }
 
     function isVerified(address organisation) public view returns (bool) {
         return IAMContract.isVerified(organisation);
