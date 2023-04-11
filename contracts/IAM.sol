@@ -57,6 +57,18 @@ contract IAM {
 
     // --- FUNCTIONS ---
     /**
+     * @notice Adds a beneficiary to the list of verified organisations in this IAM contract
+     * @dev Can only be called by the owner of IAM contract. Verification of beneficiary is done off the chain
+     * @param organisation The address of an Ethereum account representing the newly verified beneficiary to add
+     */
+    function add(address organisation) public ownerOnly {
+        require(orgStatus[organisation] == status.NONE, "Organisation address already exists");
+        orgStatus[organisation] = status.VERIFIED;
+        orgList.push(organisation);
+        emit addVerifiedOrg(organisation);
+    }
+
+    /**
      * @notice Sets a beneficiary to have the 'Verified' status
      * @dev Can only be called by the owner of IAM contract and beneficiary must not have 'NONE' status in orgStatus list
      * @param organisation The address of an Ethereum account representing the beneficiary to set as 'Verified'
@@ -91,18 +103,6 @@ contract IAM {
         orgStatus[organisation] = status.DISTRUST;
         dateOfDistrust[organisation] = block.timestamp;
         emit orgDistrust(organisation);
-    }
-
-    /**
-     * @notice Adds a beneficiary to the list of verified organisations in this IAM contract
-     * @dev Can only be called by the owner of IAM contract. Verification of beneficiary is done off the chain
-     * @param organisation The address of an Ethereum account representing the newly verified beneficiary to add
-     */
-    function add(address organisation) public ownerOnly {
-        require(orgStatus[organisation] == status.NONE, "Organisation address already exists");
-        orgStatus[organisation] = status.VERIFIED;
-        orgList.push(organisation);
-        emit addVerifiedOrg(organisation);
     }
 
     /**
