@@ -91,6 +91,7 @@ contract Campaign {
 
     // --- FUNCTIONS ---
     /**
+     * @notice Instantiates a new Campaign contract for donors to donate to
      * @param secs The duration in seconds that this campaign will run for
      * @param orgAddress The address of the beneficiary that is running this campaign
      * @param IAMaddress The address of the IAM contract for beneficiary verification purposes
