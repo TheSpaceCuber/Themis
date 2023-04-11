@@ -17,7 +17,7 @@ contract IAM {
     address[] orgList;
 
     /**
-     * @notice Emitted when an beneficiary is added to the list of verified beneficiaries (orgList)
+     * @notice Emitted when a new beneficiary is added as a verified beneficiary
      * @param org The address of an Ethereum account representing the beneficiary
      */
     event addVerifiedOrg(address org);
