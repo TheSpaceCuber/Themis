@@ -55,34 +55,7 @@ contract IAM {
         _;
     }
 
-    // --- GETTERS / SETTERS ---
-    // may be used later
-    function isVerified(address organisation) public view returns (bool) {
-        return (orgStatus[organisation] == status.VERIFIED);
-    }
-
-    function isLocked(address organisation) public view returns (bool) {
-        return (orgStatus[organisation] == status.LOCK);
-    }
-
-    function isDistrust(address organisation) public view returns (bool) {
-        return (orgStatus[organisation] == status.DISTRUST);
-    }
-
-    function getStatus(address organisation) public view returns (status) {
-        return orgStatus[organisation];
-    }
-
-    function getOrgList() public view returns (address[] memory) {
-        return orgList;
-    }
-
-    function getRefundPeriod(address organisation) public view returns (uint256) {
-        require(orgStatus[organisation] == status.DISTRUST, "Organisation is not distrusted");
-        require(dateOfDistrust[organisation] != 0, "Organisation's refund period is not found");
-        return dateOfDistrust[organisation];
-    }
-
+    // --- FUNCTIONS ---
     function setVerified(address organisation) public ownerOnly registeredOnly(organisation) {
         orgStatus[organisation] = status.VERIFIED;
         if (dateOfDistrust[organisation] != 0) {
@@ -112,5 +85,31 @@ contract IAM {
         orgStatus[organisation] = status.VERIFIED;
         orgList.push(organisation);
         emit addVerifiedOrg(organisation);
+    }
+
+        function isVerified(address organisation) public view returns (bool) {
+        return (orgStatus[organisation] == status.VERIFIED);
+    }
+
+    function isLocked(address organisation) public view returns (bool) {
+        return (orgStatus[organisation] == status.LOCK);
+    }
+
+    function isDistrust(address organisation) public view returns (bool) {
+        return (orgStatus[organisation] == status.DISTRUST);
+    }
+
+    function getStatus(address organisation) public view returns (status) {
+        return orgStatus[organisation];
+    }
+
+    function getOrgList() public view returns (address[] memory) {
+        return orgList;
+    }
+
+    function getRefundPeriod(address organisation) public view returns (uint256) {
+        require(orgStatus[organisation] == status.DISTRUST, "Organisation is not distrusted");
+        require(dateOfDistrust[organisation] != 0, "Organisation's refund period is not found");
+        return dateOfDistrust[organisation];
     }
 }
