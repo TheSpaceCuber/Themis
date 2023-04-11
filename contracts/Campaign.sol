@@ -3,6 +3,11 @@ pragma solidity ^0.5.17;
 import "./IAM.sol";
 import "./CampaignFactory.sol";
 
+/**
+ * @title A donation campaign for donors to donate money to.
+ * @author IS4302 Group 11
+ * @notice Donors can donate to this campaign during the campaign period.
+ */
 contract Campaign {
     address payable campaignFactory;
     address payable owner;
