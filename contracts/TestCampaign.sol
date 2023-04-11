@@ -82,7 +82,7 @@ contract TestCampaign {
     }
 
     /**
-     * @dev Contains a test-specific parameter
+     * @param test_isPastLockout A test parameter to specify if a campaign has ended
      */
     modifier ongoingCampaignOnly(bool test_isPastLockout) {
         require(test_isPastLockout == false, "Campaign has ended");
@@ -90,7 +90,7 @@ contract TestCampaign {
     }
 
     /**
-     * @dev Contains a test-specific parameter
+     * @param test_isPastLockout A test parameter to specify if a campaign has ended
      */
     modifier pastLockoutOnly(bool test_isPastLockout) {
         require(test_isPastLockout == true, "Campaign is ongoing");
