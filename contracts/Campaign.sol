@@ -4,9 +4,10 @@ import "./IAM.sol";
 import "./CampaignFactory.sol";
 
 /**
- * @title A donation campaign for donors to donate money to.
+ * @title A donation campaign for donors to donate money to
  * @author IS4302 Group 11
- * @notice Donors can donate to this campaign during the campaign period.
+ * @notice Donors can donate to this campaign during the campaign period
+ * @dev Instantiation of this contract should only be done through CampaignFactory contract
  */
 contract Campaign {
     address payable campaignFactory;
