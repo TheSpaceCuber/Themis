@@ -114,22 +114,46 @@ contract IAM {
         return (orgStatus[organisation] == status.VERIFIED);
     }
 
+    /**
+     * @notice Checks if a given beneficiary has a 'Locked' status
+     * @param organisation The address representing the beneficiary to check
+     * @return true if beneficiary has a 'Locked' status, false otherwise
+     */
     function isLocked(address organisation) public view returns (bool) {
         return (orgStatus[organisation] == status.LOCK);
     }
 
+    /**
+     * @notice Checks if a given beneficiary has a 'Distrust' status
+     * @param organisation The address representing the beneficiary to check
+     * @return true if beneficiary has a 'Distrust' status, false otherwise
+     */
     function isDistrust(address organisation) public view returns (bool) {
         return (orgStatus[organisation] == status.DISTRUST);
     }
 
+    /**
+     * @notice Looks up the current status of a given beneficiary
+     * @param organisation The address representing the beneficiary to look up
+     * @return A value from the status enumeration variable
+     */
     function getStatus(address organisation) public view returns (status) {
         return orgStatus[organisation];
     }
 
+    /**
+     * @notice Returns a list of beneficiaries stored in the IAM contract
+     * @return An array of beneficiaries
+     */
     function getOrgList() public view returns (address[] memory) {
         return orgList;
     }
 
+    /**
+     * @notice Gets the timestamp value of when an beneficiary has been given the 'Distrust' status
+     * @param organisation An address representing the beneficiary to look up
+     * @return A Unix timestamp of when a beneficiary has been marked as distrusted
+     */
     function getRefundPeriod(address organisation) public view returns (uint256) {
         require(orgStatus[organisation] == status.DISTRUST, "Organisation is not distrusted");
         require(dateOfDistrust[organisation] != 0, "Organisation's refund period is not found");
