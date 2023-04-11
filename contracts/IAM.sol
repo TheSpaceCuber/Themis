@@ -58,8 +58,8 @@ contract IAM {
     // --- FUNCTIONS ---
     /**
      * @notice Sets a beneficiary to have the 'Verified' status
-     * @dev Can only be called by the owner of IAM contract and beneficiary must be in orgStatus list
-     * @param organisation The address of an Ethereum account representing the beneficiary
+     * @dev Can only be called by the owner of IAM contract and beneficiary must not have 'NONE' status in orgStatus list
+     * @param organisation The address of an Ethereum account representing the beneficiary to be updated
      */
     function setVerified(address organisation) public ownerOnly registeredOnly(organisation) {
         orgStatus[organisation] = status.VERIFIED;
@@ -69,6 +69,11 @@ contract IAM {
         emit orgVerified(organisation);
     }
 
+    /**
+     * @notice Sets a beneficiary to have the 'Locked' status
+     * @dev Can only be called by the owner of IAM contract and beneficiary must not have 'NONE' status in orgStatus list
+     * @param organisation The address of an Ethereum account representing the beneficiary to be updated
+     */
     function setLocked(address organisation) public ownerOnly registeredOnly(organisation) {
         orgStatus[organisation] = status.LOCK;
         if (dateOfDistrust[organisation] != 0) {
