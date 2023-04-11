@@ -56,6 +56,7 @@ contract Campaign {
      */
     event hasReturnedBalance(address from, uint256 returnedAmt);
 
+
     // --- MODIFIERS ---
     modifier ownerOnly() {
         require(owner == msg.sender, "Caller is not owner");
@@ -87,6 +88,13 @@ contract Campaign {
         _;
     }
 
+
+    // --- FUNCTIONS ---
+    /**
+     * @param secs The duration in seconds that this campaign will run for
+     * @param orgAddress The address of the beneficiary that is running this campaign
+     * @param IAMaddress The address of the IAM contract for beneficiary verification purposes
+     */
     constructor(uint256 secs, address orgAddress, IAM IAMaddress) public {
         endDatetime = block.timestamp + secs;
         owner = address(uint160(orgAddress));
