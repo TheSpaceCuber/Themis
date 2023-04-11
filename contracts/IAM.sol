@@ -59,7 +59,7 @@ contract IAM {
     /**
      * @notice Sets a beneficiary to have the 'Verified' status
      * @dev Can only be called by the owner of IAM contract and beneficiary must not have 'NONE' status in orgStatus list
-     * @param organisation The address of an Ethereum account representing the beneficiary to be updated
+     * @param organisation The address of an Ethereum account representing the beneficiary to set as 'Verified'
      */
     function setVerified(address organisation) public ownerOnly registeredOnly(organisation) {
         orgStatus[organisation] = status.VERIFIED;
@@ -72,7 +72,7 @@ contract IAM {
     /**
      * @notice Sets a beneficiary to have the 'Locked' status
      * @dev Can only be called by the owner of IAM contract and beneficiary must not have 'NONE' status in orgStatus list
-     * @param organisation The address of an Ethereum account representing the beneficiary to be updated
+     * @param organisation The address of an Ethereum account representing the beneficiary to set as 'Locked'
      */
     function setLocked(address organisation) public ownerOnly registeredOnly(organisation) {
         orgStatus[organisation] = status.LOCK;
@@ -82,13 +82,22 @@ contract IAM {
         emit orgLocked(organisation);
     }
 
+    /**
+     * @notice Sets a beneficiary to have the 'Distrust' status
+     * @dev Can only be called by the owner of IAM contract and beneficiary must not have 'NONE' status in orgStatus list
+     * @param organisation The address of an Ethereum account representing the beneficiary to set as 'Distrust'
+     */
     function setDistrust(address organisation) public ownerOnly registeredOnly(organisation) {
         orgStatus[organisation] = status.DISTRUST;
         dateOfDistrust[organisation] = block.timestamp;
         emit orgDistrust(organisation);
     }
 
-    // adds a verified organisation
+    /**
+     * @notice Adds a beneficiary to the list of verified organisations in this IAM contract
+     * @dev Can only be called by the owner of IAM contract. Verification of beneficiary is done off the chain
+     * @param organisation The address of an Ethereum account representing the newly verified beneficiary to add
+     */
     function add(address organisation) public ownerOnly {
         require(orgStatus[organisation] == status.NONE, "Organisation address already exists");
         orgStatus[organisation] = status.VERIFIED;
@@ -96,6 +105,11 @@ contract IAM {
         emit addVerifiedOrg(organisation);
     }
 
+    /**
+     * @notice Checks if a given beneficiary has a 'Verified' status
+     * @param organisation The address representing the beneficiary to check
+     * @return true if beneficiary has a 'Verified' status, false otherwise
+     */
     function isVerified(address organisation) public view returns (bool) {
         return (orgStatus[organisation] == status.VERIFIED);
     }
