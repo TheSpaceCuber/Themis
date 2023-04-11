@@ -37,7 +37,7 @@ contract TestCampaignFactory {
      * @notice Emitted when the commission money in this CampaignFactory contract is withdrawn
      * @param amt The value of the commission withdrawn
      */
-    event commissionWithdrawn(uint256 amnt);
+    event commissionWithdrawn(uint256 amt);
 
     /**
      * @notice Emitted when a campaign contract has been deleted. Used when a campaign or its 
