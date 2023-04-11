@@ -1,5 +1,12 @@
 # Themis
- 
+## Introduction
+Themis is a semi-decentralised charity platform built on the Ethereum blockchain with the aim of providing full
+transparency to donors. A key feature of our charity platform is that donated monies will be refunded if a 
+charity campaign or beneficiary has been found to be fraudulent. This will hopefully give donors better assurance
+that their monies are used for good causes.
+
+This repository contains the proposed foundations for running Themis on the blockchain.
+
 ## Setup
 1. Install [NodeJS](https://nodejs.org/en/download/)
 2. Install truffle globally
