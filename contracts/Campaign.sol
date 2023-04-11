@@ -102,24 +102,6 @@ contract Campaign {
         IAMContract = IAMaddress;
     }
 
-    // --- GETTERS / SETTERS ---
-
-    function isVerifiedOwner() public view returns (bool) {
-        return IAMContract.isVerified(owner);
-    }
-
-    function isDistrustedOwner() public view returns (bool) {
-        return IAMContract.isDistrust(owner);
-    }
-
-    function isPastLockout() public view returns (bool) {
-        return block.timestamp >= endDatetime;
-    }
-
-    function getCharityOrganisation() public view returns (address) {
-        return owner;
-    }
-
     function getCampaignInfo() public {
         uint256 statusInt = uint256(IAMContract.getStatus(owner));
         string memory status;
@@ -133,15 +115,6 @@ contract Campaign {
         emit campaignInfoRetrieved(owner, status, endDatetime, totalDonated);
     }
 
-    function getEndDatetime() public view returns (uint256) {
-        return endDatetime;
-    }
-
-    function getTotalDonated() public view returns (uint256) {
-        return totalDonated;
-    }
-
-    // --- FUNCTIONS ---
     function donate() public payable verifiedOnly ongoingCampaignOnly {
         require(msg.value > 0, "Invalid donation amount");
         totalDonated += msg.value;
@@ -184,5 +157,29 @@ contract Campaign {
         uint256 remainingBalance =  address(this).balance;
         campaignFactory.transfer(remainingBalance);
         emit hasReturnedBalance(address(this), remainingBalance);
+    }
+
+    function isVerifiedOwner() public view returns (bool) {
+        return IAMContract.isVerified(owner);
+    }
+
+    function isDistrustedOwner() public view returns (bool) {
+        return IAMContract.isDistrust(owner);
+    }
+
+    function isPastLockout() public view returns (bool) {
+        return block.timestamp >= endDatetime;
+    }
+
+    function getCharityOrganisation() public view returns (address) {
+        return owner;
+    }
+
+    function getEndDatetime() public view returns (uint256) {
+        return endDatetime;
+    }
+
+    function getTotalDonated() public view returns (uint256) {
+        return totalDonated;
     }
 }
