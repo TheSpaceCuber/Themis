@@ -6,8 +6,8 @@ import "./CampaignFactory.sol";
 contract Campaign {
     address payable campaignFactory;
     address payable owner;
-    uint256 endDatetime;
     IAM IAMContract;
+    uint256 endDatetime;
     uint256 totalDonated = 0;
     uint256 commissionBP = 1000; // 10% == (1000 / 10,000) basis points
     uint256 basispoints = 10000;
