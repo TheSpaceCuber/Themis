@@ -78,35 +78,6 @@ contract CampaignFactory {
     // For receiving payment
     function() payable external {}
 
-    function isVerified(address organisation) public view returns (bool) {
-        return IAMContract.isVerified(organisation);
-    }
-
-    function isLocked(address organisation) public view returns (bool) {
-        return IAMContract.isLocked(organisation);
-    }
-
-    function isDistrust(address organisation) public view returns (bool) {
-        return IAMContract.isDistrust(organisation);
-    }
-
-    function hoursToSeconds(uint16 hrs) private view returns (uint256) {
-        return uint256(SecsInHour  * hrs);
-    }
-
-    function secondsInSixMonths() private view returns (uint256) {
-        return hoursToSeconds(HoursInYear) / 2;
-    }
-
-    function getCampaignsOfOrg(address organisation) public view returns (address[] memory) {
-        return orgCampaigns[organisation];
-    }
-
-    // --- FUNCTIONS ---
-    
-    
-    
-    // overloaded
     function addCampaign() public verifiedOnly returns (Campaign) {
         require(orgCampaigns[msg.sender].length < MAX_CHARITIES, "Maximum active charities reached");
 
@@ -174,6 +145,22 @@ contract CampaignFactory {
         emit refundComplete(organisation);
     }
 
+    function isVerified(address organisation) public view returns (bool) {
+        return IAMContract.isVerified(organisation);
+    }
+
+    function isLocked(address organisation) public view returns (bool) {
+        return IAMContract.isLocked(organisation);
+    }
+
+    function isDistrust(address organisation) public view returns (bool) {
+        return IAMContract.isDistrust(organisation);
+    }
+
+    function getCampaignsOfOrg(address organisation) public view returns (address[] memory) {
+        return orgCampaigns[organisation];
+    }
+
     function deleteCampaignFromMapping(address organisation, Campaign campaign) private {
         orgCampaigns[organisation].pop();
         emit campaignDeleted(organisation, address(campaign));
@@ -182,5 +169,13 @@ contract CampaignFactory {
     function deleteOrgFromMapping(address organisation) private {
         delete orgCampaigns[organisation];
         emit orgDeleted(organisation);
+    }
+
+    function hoursToSeconds(uint16 hrs) private view returns (uint256) {
+        return uint256(SecsInHour  * hrs);
+    }
+
+    function secondsInSixMonths() private view returns (uint256) {
+        return hoursToSeconds(HoursInYear) / 2;
     }
 }
