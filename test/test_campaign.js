@@ -64,6 +64,17 @@ contract ("Campaign", function(accounts){
     });
 
     it("IAM05: Registering of a registered beneficiary [Fail]", async() => {
+        await IAMInstance.setVerified(accounts[0]);
+        await truffleAssert.reverts(
+            IAMInstance.add(accounts[0]),
+            "Organisation address already exists"
+        );
+        await IAMInstance.setLocked(accounts[0]);
+        await truffleAssert.reverts(
+            IAMInstance.add(accounts[0]),
+            "Organisation address already exists"
+        );
+        await IAMInstance.setDistrust(accounts[0]);
         await truffleAssert.reverts(
             IAMInstance.add(accounts[0]),
             "Organisation address already exists"
