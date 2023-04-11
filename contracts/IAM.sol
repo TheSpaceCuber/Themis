@@ -78,7 +78,6 @@ contract IAM {
         emit orgDistrust(organisation);
     }
 
-    // --- FUNCTIONS ---
     // adds a verified organisation
     function add(address organisation) public ownerOnly {
         require(orgStatus[organisation] == status.NONE, "Organisation address already exists");
@@ -87,7 +86,7 @@ contract IAM {
         emit addVerifiedOrg(organisation);
     }
 
-        function isVerified(address organisation) public view returns (bool) {
+    function isVerified(address organisation) public view returns (bool) {
         return (orgStatus[organisation] == status.VERIFIED);
     }
 
