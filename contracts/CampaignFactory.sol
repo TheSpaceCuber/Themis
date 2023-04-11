@@ -95,7 +95,7 @@ contract CampaignFactory {
     function addCampaign() public verifiedOnly returns (Campaign) {
         require(orgCampaigns[msg.sender].length < MAX_CHARITIES, "Maximum active charities reached");
 
-        uint256 durationSecs = hoursToSeconds(HoursInYear);
+        uint256 durationSecs = convertHoursToSeconds(HoursInYear);
         Campaign c = new Campaign(durationSecs, msg.sender, IAMContract);
         orgCampaigns[msg.sender].push(address(c));
 
@@ -113,7 +113,7 @@ contract CampaignFactory {
         require(durationHrs <= HoursInYear, "Maximum duration (in hrs) is 1 year");
         require(orgCampaigns[msg.sender].length < MAX_CHARITIES, "Maximum active charities reached");
 
-        uint256 durationSecs = hoursToSeconds(durationHrs);
+        uint256 durationSecs = convertHoursToSeconds(durationHrs);
         Campaign c = new Campaign(durationSecs, msg.sender, IAMContract);
         orgCampaigns[msg.sender].push(address(c));
 
@@ -166,7 +166,7 @@ contract CampaignFactory {
      */
     function deleteDistrustedOrg(address organisation) public ownerOnly {
         require(isDistrust(organisation) == true, "Organisation status is not distrust");
-        require(block.timestamp >= IAMContract.getRefundPeriod(organisation) + secondsInSixMonths(), "Refund period is ongoing");
+        require(block.timestamp >= IAMContract.getRefundPeriod(organisation) + getSecondsInSixMonths(), "Refund period is ongoing");
         uint256 len = orgCampaigns[organisation].length - 1;
         for (int i = int(len); i >= 0; i--) {
             Campaign c = Campaign(orgCampaigns[organisation][uint256(i)]);
@@ -240,7 +240,7 @@ contract CampaignFactory {
      * @param hrs Time in hours
      * @return Time in seconds
      */
-    function hoursToSeconds(uint16 hrs) private view returns (uint256) {
+    function convertHoursToSeconds(uint16 hrs) private view returns (uint256) {
         return uint256(SecsInHour  * hrs);
     }
 
@@ -248,7 +248,7 @@ contract CampaignFactory {
      * @notice Gives the value of 6 months in seconds
      * @return The value of 6 months in seconds
      */
-    function secondsInSixMonths() private view returns (uint256) {
-        return hoursToSeconds(HoursInYear) / 2;
+    function getSecondsInSixMonths() private view returns (uint256) {
+        return convertHoursToSeconds(HoursInYear) / 2;
     }
 }
