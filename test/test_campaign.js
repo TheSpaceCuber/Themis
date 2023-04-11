@@ -30,7 +30,6 @@ contract ("Campaign", function(accounts){
         );
     });
 
-    // From previous case, can assume that beneficiary status is verified
     it("IAM02: Locking of a beneficiary [Pass]", async() => {
         await IAMInstance.setLocked(accounts[0]);
         let bStatus = await IAMInstance.getStatus(accounts[0]);
@@ -40,7 +39,6 @@ contract ("Campaign", function(accounts){
         );
     });
 
-    // From previous case, can assume that beneficiary status is locked
     it("IAM03: Distrust of a beneficiary [Pass]", async() => {
         await IAMInstance.setDistrust(accounts[0]);
         let bStatus = await IAMInstance.getStatus(accounts[0]);
@@ -50,8 +48,17 @@ contract ("Campaign", function(accounts){
         );
     });
 
-    // From previous case, can assume that beneficiary status is locked
-    it("IAM04: Set status of non-registered beneficiary [Fail]", async() => {
+    it("IAM04: Set verified for a beneficiary [Pass]", async() => {
+        await IAMInstance.setVerified(accounts[0]);
+        let bStatus = await IAMInstance.getStatus(accounts[0]);
+        await assert.equal(
+            bStatus.toString(),
+            1 // status.VERIFIED
+        );
+    });
+
+    it("IAM05: Set status of non-registered beneficiary [Fail]", async() => {
+        // Attempt to set the status for a non-registered beneficiary
         await truffleAssert.reverts(
             IAMInstance.setDistrust(accounts[1]),
             "Organisation address does not exist"
@@ -63,7 +70,9 @@ contract ("Campaign", function(accounts){
         );
     });
 
-    it("IAM05: Registering of a registered beneficiary [Fail]", async() => {
+    // Attempt to registered a beneficiary that has already registered.
+    it("IAM06: Registering of a registered beneficiary [Fail]", async() => {
+        // Attempt to register account with different status
         await IAMInstance.setVerified(accounts[0]);
         await truffleAssert.reverts(
             IAMInstance.add(accounts[0]),
@@ -158,18 +167,20 @@ contract ("Campaign", function(accounts){
     
     it("CAM01: Donate to campaign [Pass]", async() => {
         await IAMInstance.add(accounts[2]);
+        //Initialise campaign instance using previously saved address of a campaign
         campaignInstance = await Campaign.at(camp1);
         let donate = await campaignInstance.donate(false, {from: accounts[2], value: oneEth});
         truffleAssert.eventEmitted(donate, 'donationMade'); 
     });
 
     it("CAM02: Donate to campaign with invalid value [Fail]", async() => {
+        // Invalid amou t
         await truffleAssert.reverts(
             campaignInstance.donate(false, {from: accounts[2], value: 0}),
             "Invalid donation amount"
         );
         
-        // Over user's balance
+        // Donation amount over user's balance
         await truffleAssert.fails(
             campaignInstance.donate(false, {from: accounts[2], value: oneEth.multipliedBy(1000)})
         );
@@ -191,6 +202,7 @@ contract ("Campaign", function(accounts){
 
     it("CAM05: Owner withdraw campaign [Pass]", async() => {
         // Balance casted to Bigint for comparison
+        // Current account balance, CampaignFactory contract balance and total amount donated for camp1
         let accBal = await web3.eth.getBalance(accounts[0]);
         accBal = await BigInt(accBal);
         let CFBal = await web3.eth.getBalance(campaignFactoryInstance.address);
@@ -198,6 +210,9 @@ contract ("Campaign", function(accounts){
         let dAmount = await campaignInstance.getTotalDonated();
         dAmount = await BigInt(dAmount);
         
+        // Commission is set as 10%
+        // 90% of donated amount should go to the beneficiary
+        // 10% of donated amount should go to CampaignFactory contract as comission
         let commission = await dAmount / 10n ;
         let netDonationAmt = await dAmount - commission;
 
@@ -206,6 +221,7 @@ contract ("Campaign", function(accounts){
         
         let newAccBal = await web3.eth.getBalance(accounts[0]);
         newAccBal = await BigInt(newAccBal);
+        
         let newCFBal = await web3.eth.getBalance(campaignFactoryInstance.address);
         newCFBal = await BigInt(newCFBal);
 
