@@ -41,6 +41,9 @@ contract CampaignFactory {
         IAMContract = IAMaddress;
     }
 
+    // For receiving payment
+    function() payable external {}
+
     function isVerified(address organisation) public view returns (bool) {
         return IAMContract.isVerified(organisation);
     }
@@ -67,8 +70,7 @@ contract CampaignFactory {
 
     // --- FUNCTIONS ---
     
-    // For receiving payment
-    function() payable external {}
+    
     
     // overloaded
     function addCampaign() public verifiedOnly returns (Campaign) {
