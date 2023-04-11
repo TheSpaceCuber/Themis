@@ -58,6 +58,7 @@ contract CampaignFactory {
      */
     event refundComplete(address organisation);
 
+
     // --- MODIFIERS ---
     modifier ownerOnly() {
         require(owner == msg.sender, "Caller is not owner");
@@ -69,15 +70,28 @@ contract CampaignFactory {
         _;
     }
 
-    // --- GETTERS / SETTERS ---
+
+    // --- FUNCIONS ---
+    /**
+     * @notice Creates a new instance of this CampaignFactory contract
+     * @param IAMaddress The address of the IAM contract
+     */
     constructor(IAM IAMaddress) public {
         owner = msg.sender;
         IAMContract = IAMaddress;
     }
 
-    // For receiving payment
+    /**
+     * @notice The receive function for this CampaignFactory contract.
+     * @dev Currently only used for receiving commissions from Campaign contracts
+     */
     function() payable external {}
 
+    /**
+     * @notice Start a new campaign with the default duration of 1 year
+     * @dev Has an overloaded function alternative that allows caller to specify a duration for the campaign
+     * @return The address of the newly created Campaign contract
+     */
     function addCampaign() public verifiedOnly returns (Campaign) {
         require(orgCampaigns[msg.sender].length < MAX_CHARITIES, "Maximum active charities reached");
 
@@ -89,8 +103,11 @@ contract CampaignFactory {
         return c;
     }
 
-    // overloaded
-    // If organisation specifies duration of campaign in hours
+    /**
+     * @notice Start a new campaign with a specified campaign duration in hours
+     * @dev Has an overloaded function alternative that uses the default campaign duration of 1 year
+     * @return The address of the newly created Campaign contract
+     */
     function addCampaign(uint16 durationHrs) public verifiedOnly returns (Campaign) {
         require(durationHrs >= 24, "Minimum duration (hrs) is 24 hour");
         require(durationHrs <= HoursInYear, "Maximum duration (in hrs) is 1 year");
@@ -104,7 +121,14 @@ contract CampaignFactory {
         return c;
     }
 
-    // called from Campaign.sol after beneficiary withdraw()
+    /**
+     * @notice Closes the campaign that has went past its ending date and time
+     * @dev This function must only be called from the closing Campaign contract's withdraw function.
+     * This is to ensure that all donations have been transferred to the beneficiary and this 
+     * CampaignFactory contract (in the form of commissions)
+     * @param organisation The address of the beneficiary running the closing campaign
+     * @param campaign The instance of the Campaign contract that is being closed
+     */
     function closeCampaign(address organisation, Campaign campaign) public {
         require(isVerified(organisation) == true, "Address is not verified");
         require(campaign.isPastLockout() == true, "Campaign is ongoing");
