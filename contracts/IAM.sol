@@ -2,6 +2,12 @@ pragma solidity ^0.5.17;
 
 import "./CampaignFactory.sol";
 
+/**
+ * @title The identity access manager for Themis
+ * @author IS4302 Group 11
+ * @notice Stores approved beneficiaries who can use Themis to run donation campaigns.
+ * @dev This contract will be referenced when CampaignFactory contract needs to verify a beneficiary.
+ */
 contract IAM {
     address owner;
 
