@@ -30,14 +30,13 @@ contract IAM {
 
     /**
      * @notice Emitted when a beneficiary has been given the status of 'Locked'
-     * @param
+     * @param org The address of an Ethereum account representing the beneficiary
      */
     event orgLocked(address org);
 
     /**
-     * @notice 
-     * @dev
-     * @param
+     * @notice Emitted when a beneficiary has been given the status of 'Distrust' 
+     * @param org The address of an Ethereum account representing the beneficiary
      */
     event orgDistrust(address org);
 
