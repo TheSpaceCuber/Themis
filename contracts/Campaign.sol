@@ -185,26 +185,54 @@ contract Campaign {
         emit hasReturnedBalance(address(this), remainingBalance);
     }
 
+    /**
+     * @notice Checks if the managing beneficiary has the 'Verified' status
+     * @dev Data is based on the IAM contract
+     * @return true if the beneficiary has the 'Verified' status, false otherwise
+     */
     function isVerifiedOwner() public view returns (bool) {
         return IAMContract.isVerified(owner);
     }
 
+    /**
+     * @notice Checks if the managing beneficiary has the 'Distrust' status
+     * @dev Data is based on the IAM contract
+     * @return true if the beneficiary has the 'Distrust' status, false otherwise
+     */
     function isDistrustedOwner() public view returns (bool) {
         return IAMContract.isDistrust(owner);
     }
 
+    /**
+     * @notice Checks if this campaign has already ended based on the stated date and time
+     * given when this Campaign contract was instantiated
+     * @return true if the campaign has ended, false otherwise
+     */
     function isPastLockout() public view returns (bool) {
         return block.timestamp >= endDatetime;
     }
 
+    /**
+     * @notice Gets the managing beneficiary running this campaign
+     * @return An address representing the beneficiary
+     */
     function getCharityOrganisation() public view returns (address) {
         return owner;
     }
 
+    /**
+     * @notice Gets the date and time of when this campaign is scheduled to end
+     * @dev Ending date and time was declared during this contract's instantiation
+     * @return A Unix timestamp representing the campaign's ending date and time
+     */
     function getEndDatetime() public view returns (uint256) {
         return endDatetime;
     }
 
+    /**
+     * @notice Gets the total amount donated at the time of this function call
+     * @return The value of the donation pool
+     */
     function getTotalDonated() public view returns (uint256) {
         return totalDonated;
     }
