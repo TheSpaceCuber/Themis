@@ -21,7 +21,7 @@ contract Campaign {
      * @notice Emitted when a new beneficiary is added as a verified beneficiary
      * @param owner The address of the beneficiary managing this donation campaign
      * @param status The status of the campaign, that is, 'Verified', 'Locked', or 'Distrust'
-     * @param endDateTime The Unix timestamp when the contract is scheduled to end
+     * @param endDatetime The Unix timestamp when the contract is scheduled to end
      * @param totalDonated The total amount of money donated to the point of this event being emitted
      */
     event campaignInfoRetrieved(address owner, string status, uint256 endDatetime, uint256 totalDonated);
