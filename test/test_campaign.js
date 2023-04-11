@@ -50,12 +50,27 @@ contract ("Campaign", function(accounts){
         );
     });
 
-    // From previous case, can assume that beneficiary status is distrust
-    it("CAMFAC01: Add campaign while account status not verified. [Pass]", async() => {
+    // From previous case, can assume that beneficiary status is locked
+    it("IAM04: Set status of non-registered beneficiary [Fail]", async() => {
         await truffleAssert.reverts(
-            campaignFactoryInstance.addCampaign({from: accounts[0]}),
-            "Address is not verified"
+            IAMInstance.setDistrust(accounts[1]),
+            "Organisation address does not exist"
         );
+
+        await truffleAssert.reverts(
+            IAMInstance.setLocked(accounts[1]),
+            "Organisation address does not exist"
+        );
+    });
+
+    it("IAM05: Registering of a registered beneficiary [Fail]", async() => {
+        await truffleAssert.reverts(
+            IAMInstance.add(accounts[0]),
+            "Organisation address already exists"
+        );
+    });
+
+    it("CAMFAC01: Add campaign while account status not verified. [Pass]", async() => {
         await IAMInstance.setLocked(accounts[0]);
         await truffleAssert.reverts(
             campaignFactoryInstance.addCampaign({from: accounts[0]}),
