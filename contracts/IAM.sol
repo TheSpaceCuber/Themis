@@ -11,8 +11,8 @@ import "./CampaignFactory.sol";
 contract IAM {
     address owner;
     // The NONE status maps to 0; for unmapped addresses
-    enum status { NONE, VERIFIED, LOCK, DISTRUST }
-    mapping(address => status) orgStatus;
+    enum Status { NONE, VERIFIED, LOCK, DISTRUST }
+    mapping(address => Status) orgStatus;
     mapping(address => uint256) dateOfDistrust;
     address[] orgList;
 
@@ -48,7 +48,7 @@ contract IAM {
     }
 
     modifier registeredOnly(address organisation) {
-        require(orgStatus[organisation] != status.NONE, "Organisation address does not exist");
+        require(orgStatus[organisation] != Status.NONE, "Organisation address does not exist");
         _;
     }
 
@@ -67,8 +67,8 @@ contract IAM {
      * @param organisation The address of an Ethereum account representing the newly verified beneficiary to add
      */
     function add(address organisation) public ownerOnly {
-        require(orgStatus[organisation] == status.NONE, "Organisation address already exists");
-        orgStatus[organisation] = status.VERIFIED;
+        require(orgStatus[organisation] == Status.NONE, "Organisation address already exists");
+        orgStatus[organisation] = Status.VERIFIED;
         orgList.push(organisation);
         emit AddVerifiedOrg(organisation);
     }
@@ -79,7 +79,7 @@ contract IAM {
      * @param organisation The address of an Ethereum account representing the beneficiary to set as 'Verified'
      */
     function setVerified(address organisation) public ownerOnly registeredOnly(organisation) {
-        orgStatus[organisation] = status.VERIFIED;
+        orgStatus[organisation] = Status.VERIFIED;
         if (dateOfDistrust[organisation] != 0) {
             delete dateOfDistrust[organisation];
         }
@@ -92,7 +92,7 @@ contract IAM {
      * @param organisation The address of an Ethereum account representing the beneficiary to set as 'Locked'
      */
     function setLocked(address organisation) public ownerOnly registeredOnly(organisation) {
-        orgStatus[organisation] = status.LOCK;
+        orgStatus[organisation] = Status.LOCK;
         if (dateOfDistrust[organisation] != 0) {
             delete dateOfDistrust[organisation];
         }
@@ -105,7 +105,7 @@ contract IAM {
      * @param organisation The address of an Ethereum account representing the beneficiary to set as 'Distrust'
      */
     function setDistrust(address organisation) public ownerOnly registeredOnly(organisation) {
-        orgStatus[organisation] = status.DISTRUST;
+        orgStatus[organisation] = Status.DISTRUST;
         dateOfDistrust[organisation] = block.timestamp;
         emit OrgDistrust(organisation);
     }
@@ -116,7 +116,7 @@ contract IAM {
      * @return true if beneficiary has a 'Verified' status, false otherwise
      */
     function isVerified(address organisation) public view returns (bool) {
-        return (orgStatus[organisation] == status.VERIFIED);
+        return (orgStatus[organisation] == Status.VERIFIED);
     }
 
     /**
@@ -125,7 +125,7 @@ contract IAM {
      * @return true if beneficiary has a 'Locked' status, false otherwise
      */
     function isLocked(address organisation) public view returns (bool) {
-        return (orgStatus[organisation] == status.LOCK);
+        return (orgStatus[organisation] == Status.LOCK);
     }
 
     /**
@@ -134,15 +134,15 @@ contract IAM {
      * @return true if beneficiary has a 'Distrust' status, false otherwise
      */
     function isDistrust(address organisation) public view returns (bool) {
-        return (orgStatus[organisation] == status.DISTRUST);
+        return (orgStatus[organisation] == Status.DISTRUST);
     }
 
     /**
      * @notice Looks up the current status of a given beneficiary
      * @param organisation The address representing the beneficiary to look up
-     * @return A value from the status enumeration variable
+     * @return A value from the Status enumeration variable
      */
-    function getStatus(address organisation) public view returns (status) {
+    function getStatus(address organisation) public view returns (Status) {
         return orgStatus[organisation];
     }
 
@@ -160,7 +160,7 @@ contract IAM {
      * @return A Unix timestamp of when a beneficiary has been marked as distrusted
      */
     function getRefundPeriod(address organisation) public view returns (uint256) {
-        require(orgStatus[organisation] == status.DISTRUST, "Organisation is not distrusted");
+        require(orgStatus[organisation] == Status.DISTRUST, "Organisation is not distrusted");
         require(dateOfDistrust[organisation] != 0, "Organisation's refund period is not found");
         return dateOfDistrust[organisation];
     }
