@@ -5,22 +5,23 @@ import "./TestCampaignFactory.sol";
 
 contract TestCampaign {
     address payable campaignFactory;
-    address owner;
+    address payable owner;
     uint256 endDatetime;
     IAM IAMContract;
     uint256 totalDonated = 0;
     uint256 commissionBP = 1000; // 10% == (1000 / 10,000) basis points
     uint256 basispoints = 10000;
 
-    event campaignInfo(address owner, string status, uint256 endDatetime, uint256 totalDonated);
+    event campaignInfoRetrieved(address owner, string status, uint256 endDatetime, uint256 totalDonated);
     event donationMade(address donor, uint256 donatedAmt);
     event hasWithdrawn(address from, uint256 totalDonationAmt);
     event hasRefunded(address donor, uint256 refundedAmt);
+    event hasReturnedBalance(address from, uint256 returnedAmt);
 
-    constructor(uint256 secs, address orgAddress, IAM IAMaddress 
-        ) public {
+    constructor(uint256 secs, address orgAddress, IAM IAMaddress
+    ) public {
         endDatetime = block.timestamp + secs;
-        owner = orgAddress;
+        owner = address(uint160(orgAddress));
         campaignFactory = msg.sender;
         IAMContract = IAMaddress;
     }
@@ -57,7 +58,7 @@ contract TestCampaign {
     }
 
     // --- GETTERS / SETTERS ---
-    
+
     function isVerifiedOwner() public view returns (bool) {
         return IAMContract.isVerified(owner);
     }
@@ -84,7 +85,7 @@ contract TestCampaign {
         } else {
             status = "Distrust";
         }
-        emit campaignInfo(owner, status, endDatetime, totalDonated);
+        emit campaignInfoRetrieved(owner, status, endDatetime, totalDonated);
     }
 
     function getEndDatetime() public view returns (uint256) {
@@ -94,7 +95,7 @@ contract TestCampaign {
     function getTotalDonated() public view returns (uint256) {
         return totalDonated;
     }
-    
+
     // --- FUNCTIONS ---
     function donate(bool test_isPastLockout) public payable verifiedOnly ongoingCampaignOnly(test_isPastLockout) {
         require(msg.value > 0, "Invalid donation amount");
@@ -104,19 +105,16 @@ contract TestCampaign {
 
     function withdraw(bool test_isPastLockout) public ownerOnly verifiedOnly pastLockoutOnly(test_isPastLockout) {
         uint256 commission = (totalDonated * commissionBP) / basispoints;
-        
-        address payable campgnFactory = address(uint160(campaignFactory));
-        address payable beneficiary = address(uint160(owner));
         uint256 netDonationAmt =  totalDonated - commission;
 
-        campgnFactory.transfer(commission);
-        beneficiary.transfer(netDonationAmt);
-        emit hasWithdrawn(beneficiary, netDonationAmt);
+        campaignFactory.transfer(commission);
+        owner.transfer(netDonationAmt);
+        emit hasWithdrawn(owner, netDonationAmt);
 
         TestCampaignFactory(campaignFactory).closeCampaign(owner, this, test_isPastLockout);
     }
 
-    // pseudo-code for follow up    
+    // pseudo-code for follow up
     function refund(address campaignAddr) public campaignFactoryOnly distrustOnly {
 
         //retrieve past transactions/events here using campaignAddr
@@ -135,5 +133,11 @@ contract TestCampaign {
             //emit hasRefunded(sender, value);
         }
         */
+    }
+
+    function returnRemainingBalance() public campaignFactoryOnly distrustOnly {
+        uint256 remainingBalance =  address(this).balance;
+        campaignFactory.transfer(remainingBalance);
+        emit hasReturnedBalance(address(this), remainingBalance);
     }
 }

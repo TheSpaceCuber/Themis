@@ -8,8 +8,9 @@ contract IAM {
     // the NONE status maps to 0; for unmapped addresses
     enum status { NONE, VERIFIED, LOCK, DISTRUST }
     mapping(address => status) orgStatus;
+    mapping(address => uint256) dateOfDistrust;
     address[] orgList;
-    
+
     event addVerifiedOrg(address org);
     event orgVerified(address org);
     event orgLocked(address org);
@@ -52,18 +53,31 @@ contract IAM {
         return orgList;
     }
 
+    function getRefundPeriod(address organisation) public view returns (uint256) {
+        require(orgStatus[organisation] == status.DISTRUST, "Organisation is not distrusted");
+        require(dateOfDistrust[organisation] != 0, "Organisation's refund period is not found");
+        return dateOfDistrust[organisation];
+    }
+
     function setVerified(address organisation) public ownerOnly registeredOnly(organisation) {
         orgStatus[organisation] = status.VERIFIED;
+        if (dateOfDistrust[organisation] != 0) {
+            delete dateOfDistrust[organisation];
+        }
         emit orgVerified(organisation);
     }
-    
+
     function setLocked(address organisation) public ownerOnly registeredOnly(organisation) {
         orgStatus[organisation] = status.LOCK;
+        if (dateOfDistrust[organisation] != 0) {
+            delete dateOfDistrust[organisation];
+        }
         emit orgLocked(organisation);
     }
-    
+
     function setDistrust(address organisation) public ownerOnly registeredOnly(organisation) {
         orgStatus[organisation] = status.DISTRUST;
+        dateOfDistrust[organisation] = block.timestamp;
         emit orgDistrust(organisation);
     }
 
