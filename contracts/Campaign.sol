@@ -10,17 +10,50 @@ import "./CampaignFactory.sol";
  */
 contract Campaign {
     address payable campaignFactory;
-    address payable owner;
+    address payable owner;              // The beneficiary running this donation campaign
     IAM IAMContract;
     uint256 endDatetime;
     uint256 totalDonated = 0;
-    uint256 commissionBP = 1000; // 10% == (1000 / 10,000) basis points
+    uint256 commissionBP = 1000;        // 10% == (1000 / 10,000) basis points
     uint256 basispoints = 10000;
 
+    /**
+     * @notice Emitted when a new beneficiary is added as a verified beneficiary
+     * @param owner The address of the beneficiary managing this donation campaign
+     * @param status The status of the campaign, that is, 'Verified', 'Locked', or 'Distrust'
+     * @param endDateTime The Unix timestamp when the contract is scheduled to end
+     * @param totalDonated The total amount of money donated to the point of this event being emitted
+     */
     event campaignInfoRetrieved(address owner, string status, uint256 endDatetime, uint256 totalDonated);
+
+    /**
+     * @notice Emitted when a donation is made to the campaign
+     * @param donor The address representing the donor who has donated
+     * @param donatedAmt The amount of money donated by the donor
+     */
     event donationMade(address donor, uint256 donatedAmt);
+
+    /**
+     * @notice Emitted when the beneficiary has taken out the donation pool from this campaign
+     * @dev Should only be emitted when this campaign has ended
+     * @param from The address that the donation pool has been transferred to (should be owner variable)
+     * @param totalDonationAmt The value of the donation pool at the time of withdrawal
+     */
     event hasWithdrawn(address from, uint256 totalDonationAmt);
+
+    /**
+     * @notice Emitted when a donor has taken his/her donation back in the event that this campaign is distrusted
+     * @param donor The address of the donor who has gotten a refund
+     * @param refundedAmt The value of the refund
+     */
     event hasRefunded(address donor, uint256 refundedAmt);
+
+    /**
+     * @notice Emitted when the remaining unclaimed donations has been transferred to CampaignFactory contract
+     * in the event that this campaign is distrusted and there are still unclaimed donations in the contract
+     * @param from This Campaign contract address
+     * @param returnedAmt The value of the unclaimed donations transferred
+     */
     event hasReturnedBalance(address from, uint256 returnedAmt);
 
     constructor(uint256 secs, address orgAddress, IAM IAMaddress
