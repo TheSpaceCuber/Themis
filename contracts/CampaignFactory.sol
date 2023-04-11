@@ -213,20 +213,41 @@ contract CampaignFactory {
         return orgCampaigns[organisation];
     }
 
+    /**
+     * @notice Deletes the last Campaign contract linked to an organisation in the
+     * orgCampaigns mapping
+     * @dev This function must be used exclusively in the deleteDistrustedOrg function 
+     * as the latter contains logic code to complement the function
+     * @param organisation The address of the beneficiary to delete a Campaign contract from
+     * @param campaign An address of a Campaign contract that will be deleted
+     */
     function deleteCampaignFromMapping(address organisation, Campaign campaign) private {
         orgCampaigns[organisation].pop();
         emit campaignDeleted(organisation, address(campaign));
     }
 
+    /**
+     * @notice Deletes a beneficiary from the orgCampaigns mapping
+     * @param organisation The address of the beneficiary to delete
+     */
     function deleteOrgFromMapping(address organisation) private {
         delete orgCampaigns[organisation];
         emit orgDeleted(organisation);
     }
 
+    /**
+     * @notice Converts hours to seconds
+     * @param hrs Time in hours
+     * @param Time in seconds
+     */
     function hoursToSeconds(uint16 hrs) private view returns (uint256) {
         return uint256(SecsInHour  * hrs);
     }
 
+    /**
+     * @notice Gives the value of 6 months in seconds
+     * @return The value of 6 months in seconds
+     */
     function secondsInSixMonths() private view returns (uint256) {
         return hoursToSeconds(HoursInYear) / 2;
     }
