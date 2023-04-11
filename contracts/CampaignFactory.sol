@@ -3,26 +3,60 @@ pragma solidity ^0.5.17;
 import "./Campaign.sol";
 import "./IAM.sol";
 
+/**
+ * @title The brains of Themis
+ * @author IS4302 Group 11
+ * @notice Creates, closes, and manages campaigns
+ */
 contract CampaignFactory {
     address owner;
     IAM IAMContract;
     uint8 MAX_CHARITIES = 5;
     uint16 HoursInYear = 8760;
     uint16 SecsInHour = 3600;
-
     mapping(address => address[]) orgCampaigns;
 
+    /**
+     * @notice Emitted when a new Campaign contract is instantiated
+     * @param organisation The beneficiary that is running the campaign
+     * @param campaign The address of the newly instantiated Campaign contract
+     * @param durationHrs The duration that the campaign will run for
+     */
     event mountCampaign(address organisation, address campaign, uint256 durationHrs);
-    event campaignEnded(address organisation, address campaign);
-    event commissionWithdrawn(uint256 amnt);
-    event campaignDeleted(address organisation, address campaign);
-    event orgDeleted(address organisation);
-    event refundComplete(address organisation);
 
-    constructor(IAM IAMaddress) public {
-        owner = msg.sender;
-        IAMContract = IAMaddress;
-    }
+    /**
+     * @notice Emitted when a campaign has ended and is closed
+     * @param organisation The beneficiary that was in-charge of the campaign
+     * @param campaign The address of the closing Campaign contract
+     */
+    event campaignEnded(address organisation, address campaign);
+
+    /**
+     * @notice Emitted when the commission money in this CampaignFactory contract is withdrawn
+     * @param amt The value of the commission withdrawn
+     */
+    event commissionWithdrawn(uint256 amt);
+
+    /**
+     * @notice Emitted when a campaign contract has been deleted. Used when a campaign or its 
+     * managing beneficiary is deemed to be untrustworthy
+     * @param organisation The beneficiary that was running the campaign
+     * @param campaign The address of the deleted Campaign contract
+     */
+    event campaignDeleted(address organisation, address campaign);
+
+    /**
+     * @notice Emitted when a beneficiary has been deleted from this contract's orgCampaigns mapping
+     * @param organisation The beneficiary that has been deleted
+     */
+    event orgDeleted(address organisation);
+
+    /**
+     * @notice Emitted when all donations made to an untrustworthy campaign has been refunded, including
+     * transferring any unclaimed donations to this CampaignFactory contract
+     * @param organisation The beneficiary that was in-charge of the distrusted campaign
+     */
+    event refundComplete(address organisation);
 
     // --- MODIFIERS ---
     modifier ownerOnly() {
