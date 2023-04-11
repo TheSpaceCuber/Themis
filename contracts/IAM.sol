@@ -54,6 +54,9 @@ contract IAM {
 
 
     // --- FUNCTIONS ---
+    /**
+     * @notice Creates a new instance of this IAM contract
+     */
     constructor() public {
         owner = msg.sender;
     }
