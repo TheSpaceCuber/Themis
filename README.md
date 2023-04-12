@@ -7,6 +7,10 @@ that their monies are used for good causes.
 
 This repository contains the proposed foundations for running Themis on the blockchain.
 
+### Application Architecture
+
+![Themis application architecture](docs/images/Themis%20Application%20Architecture.png)
+
 ## Setup
 1. Install [NodeJS](https://nodejs.org/en/download/)
 2. Install truffle globally
