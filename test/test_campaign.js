@@ -14,13 +14,12 @@ contract ("Campaign", function(accounts){
         campaignFactoryInstance = await CampaignFactory.deployed();
     });
 
-    
     it("IAM01: Registering of beneficiary [Pass]", async() => {
         // Beneficiary status should be verified upon add
         let setDist = await IAMInstance.add(accounts[0]);
         
         // Using emitted events to track status
-        truffleAssert.eventEmitted(setDist, 'addVerifiedOrg'); 
+        truffleAssert.eventEmitted(setDist, 'AddVerifiedOrg'); 
         
         // Using getStatus to track status
         let bStatus = await IAMInstance.getStatus(accounts[0]);
