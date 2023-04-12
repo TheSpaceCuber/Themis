@@ -4,9 +4,9 @@ import "./Campaign.sol";
 import "./IAM.sol";
 
 /**
- * @title The brains of Themis
+ * @title Creation, closure, and management of campaigns
  * @author IS4302 Group 11
- * @notice Creates, closes, and manages campaigns
+ * @notice Campaign management should be done through this contract
  */
 contract CampaignFactory {
     address owner;
