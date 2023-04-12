@@ -2,23 +2,44 @@ pragma solidity ^0.5.17;
 
 import "./CampaignFactory.sol";
 
+/**
+ * @title The identity access manager for Themis
+ * @author IS4302 Group 11
+ * @notice Stores approved beneficiaries who can use Themis to run donation campaigns
+ * @dev This contract will be referenced when CampaignFactory contract needs to verify a beneficiary
+ */
 contract IAM {
     address owner;
-
-    // the NONE status maps to 0; for unmapped addresses
-    enum status { NONE, VERIFIED, LOCK, DISTRUST }
-    mapping(address => status) orgStatus;
-    mapping(address => uint256) dateOfDistrust;
+    // The NONE status maps to 0; for unmapped addresses
+    enum Status { NONE, VERIFIED, LOCK, DISTRUST }
+    mapping(address => Status) orgStatus;
+    mapping(address => uint256) dateOfDistrust; // Date is stored in Unix time format
     address[] orgList;
 
-    event addVerifiedOrg(address org);
-    event orgVerified(address org);
-    event orgLocked(address org);
-    event orgDistrust(address org);
+    /**
+     * @notice Emitted when a new beneficiary is added as a verified beneficiary
+     * @param org The address of an Ethereum account representing the beneficiary
+     */
+    event AddVerifiedOrg(address org);
 
-    constructor() public {
-        owner = msg.sender;
-    }
+    /**
+     * @notice Emitted when a beneficiary has been given the status of 'Verified'
+     * @param org The address of an Ethereum account representing the beneficiary
+     */
+    event OrgVerified(address org);
+
+    /**
+     * @notice Emitted when a beneficiary has been given the status of 'Locked'
+     * @param org The address of an Ethereum account representing the beneficiary
+     */
+    event OrgLocked(address org);
+
+    /**
+     * @notice Emitted when a beneficiary has been given the status of 'Distrust' 
+     * @param org The address of an Ethereum account representing the beneficiary
+     */
+    event OrgDistrust(address org);
+
 
     // --- MODIFIERS ---
     modifier ownerOnly() {
@@ -27,25 +48,83 @@ contract IAM {
     }
 
     modifier registeredOnly(address organisation) {
-        require(orgStatus[organisation] != status.NONE, "Organisation address does not exist");
+        require(orgStatus[organisation] != Status.NONE, "Organisation address does not exist");
         _;
     }
 
-    // --- GETTERS / SETTERS ---
-    // may be used later
+
+    // --- FUNCTIONS ---
+    /**
+     * @notice Creates a new instance of this IAM contract
+     */
+    constructor() public {
+        owner = msg.sender;
+    }
+
+    /**
+     * @notice Adds a beneficiary to the list of verified organisations in this IAM contract
+     * @dev Can only be called by the owner of IAM contract. Verification of beneficiary is done off the chain
+     * @param organisation The address of an Ethereum account representing the newly verified beneficiary to add
+     */
+    function add(address organisation) public ownerOnly {
+        require(orgStatus[organisation] == Status.NONE, "Organisation address already exists");
+        orgStatus[organisation] = Status.VERIFIED;
+        orgList.push(organisation);
+        emit AddVerifiedOrg(organisation);
+    }
+
+    /**
+     * @notice Sets a beneficiary to have the 'Verified' status
+     * @dev Can only be called by the owner of IAM contract and beneficiary must not have 'NONE' status in orgStatus list
+     * @param organisation The address of an Ethereum account representing the beneficiary to set as 'Verified'
+     */
+    function setVerified(address organisation) public ownerOnly registeredOnly(organisation) {
+        orgStatus[organisation] = Status.VERIFIED;
+        if (dateOfDistrust[organisation] != 0) {
+            delete dateOfDistrust[organisation];
+        }
+        emit OrgVerified(organisation);
+    }
+
+    /**
+     * @notice Sets a beneficiary to have the 'Locked' status
+     * @dev Can only be called by the owner of IAM contract and beneficiary must not have 'NONE' status in orgStatus list
+     * @param organisation The address of an Ethereum account representing the beneficiary to set as 'Locked'
+     */
+    function setLocked(address organisation) public ownerOnly registeredOnly(organisation) {
+        orgStatus[organisation] = Status.LOCK;
+        if (dateOfDistrust[organisation] != 0) {
+            delete dateOfDistrust[organisation];
+        }
+        emit OrgLocked(organisation);
+    }
+
+    /**
+     * @notice Sets a beneficiary to have the 'Distrust' status
+     * @dev Can only be called by the owner of IAM contract and beneficiary must not have 'NONE' status in orgStatus list
+     * @param organisation The address of an Ethereum account representing the beneficiary to set as 'Distrust'
+     */
+    function setDistrust(address organisation) public ownerOnly registeredOnly(organisation) {
+        orgStatus[organisation] = Status.DISTRUST;
+        dateOfDistrust[organisation] = block.timestamp;
+        emit OrgDistrust(organisation);
+    }
+
+    // VIEWS
+
     function isVerified(address organisation) public view returns (bool) {
-        return (orgStatus[organisation] == status.VERIFIED);
+        return (orgStatus[organisation] == Status.VERIFIED);
     }
 
     function isLocked(address organisation) public view returns (bool) {
-        return (orgStatus[organisation] == status.LOCK);
+        return (orgStatus[organisation] == Status.LOCK);
     }
 
     function isDistrust(address organisation) public view returns (bool) {
-        return (orgStatus[organisation] == status.DISTRUST);
+        return (orgStatus[organisation] == Status.DISTRUST);
     }
 
-    function getStatus(address organisation) public view returns (status) {
+    function getStatus(address organisation) public view returns (Status) {
         return orgStatus[organisation];
     }
 
@@ -54,39 +133,8 @@ contract IAM {
     }
 
     function getRefundPeriod(address organisation) public view returns (uint256) {
-        require(orgStatus[organisation] == status.DISTRUST, "Organisation is not distrusted");
+        require(orgStatus[organisation] == Status.DISTRUST, "Organisation is not distrusted");
         require(dateOfDistrust[organisation] != 0, "Organisation's refund period is not found");
         return dateOfDistrust[organisation];
-    }
-
-    function setVerified(address organisation) public ownerOnly registeredOnly(organisation) {
-        orgStatus[organisation] = status.VERIFIED;
-        if (dateOfDistrust[organisation] != 0) {
-            delete dateOfDistrust[organisation];
-        }
-        emit orgVerified(organisation);
-    }
-
-    function setLocked(address organisation) public ownerOnly registeredOnly(organisation) {
-        orgStatus[organisation] = status.LOCK;
-        if (dateOfDistrust[organisation] != 0) {
-            delete dateOfDistrust[organisation];
-        }
-        emit orgLocked(organisation);
-    }
-
-    function setDistrust(address organisation) public ownerOnly registeredOnly(organisation) {
-        orgStatus[organisation] = status.DISTRUST;
-        dateOfDistrust[organisation] = block.timestamp;
-        emit orgDistrust(organisation);
-    }
-
-    // --- FUNCTIONS ---
-    // adds a verified organisation
-    function add(address organisation) public ownerOnly {
-        require(orgStatus[organisation] == status.NONE, "Organisation address already exists");
-        orgStatus[organisation] = status.VERIFIED;
-        orgList.push(organisation);
-        emit addVerifiedOrg(organisation);
     }
 }

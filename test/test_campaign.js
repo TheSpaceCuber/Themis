@@ -104,7 +104,7 @@ contract ("Campaign", function(accounts){
         let addC = await campaignFactoryInstance.addCampaign({from: accounts[0]});
         // Save campaign address in variable for future test case
         camp1 = await addC['logs'][0]['args'][1];
-        truffleAssert.eventEmitted(addC, 'mountCampaign');
+        truffleAssert.eventEmitted(addC, 'MountCampaign');
     });
 
     it("CAMFAC03: Create 5 more campaigns with addCampaign() [Fail]", async() => {
@@ -124,7 +124,7 @@ contract ("Campaign", function(accounts){
     it("CAMFAC04: Create campaign with addCampaign(uint16 durationHrs) [Pass]", async() => {
         await IAMInstance.add(accounts[1]);
         let addC3 = await campaignFactoryInstance.methods['addCampaign(uint16)'](240, {from: accounts[1]});
-        truffleAssert.eventEmitted(addC3, 'mountCampaign');
+        truffleAssert.eventEmitted(addC3, 'MountCampaign');
     });
 
     it("CAMFAC05: Create campaign with addCampaign(uint16 durationHrs) using invalid date [Fail]", async() => {
@@ -170,7 +170,7 @@ contract ("Campaign", function(accounts){
         //Initialise campaign instance using previously saved address of a campaign
         campaignInstance = await Campaign.at(camp1);
         let donate = await campaignInstance.donate(false, {from: accounts[2], value: oneEth});
-        truffleAssert.eventEmitted(donate, 'donationMade'); 
+        truffleAssert.eventEmitted(donate, 'DonationMade'); 
     });
 
     it("CAM02: Donate to campaign with invalid value [Fail]", async() => {
@@ -217,7 +217,7 @@ contract ("Campaign", function(accounts){
         let netDonationAmt = await dAmount - commission;
 
         let withdrawn = await campaignInstance.withdraw(true, {from: accounts[0]});
-        truffleAssert.eventEmitted(withdrawn, 'hasWithdrawn'); 
+        truffleAssert.eventEmitted(withdrawn, 'HasWithdrawn'); 
         
         let newAccBal = await web3.eth.getBalance(accounts[0]);
         newAccBal = await BigInt(newAccBal);
