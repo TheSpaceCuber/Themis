@@ -181,38 +181,18 @@ contract TestCampaignFactory {
         emit RefundComplete(organisation);
     }
 
-    /**
-     * @notice Checks if a beneficiary has the 'Verified' status
-     * @param organisation The address representing the beneficiary to check
-     * @return true if the beneficiary has a 'Verified' status, false otherwise
-     */
     function isVerified(address organisation) public view returns (bool) {
         return IAMContract.isVerified(organisation);
     }
 
-    /**
-     * @notice Checks if a beneficiary has a 'Locked' status
-     * @param organisation The address representing the beneficiary to check
-     * @return true if the beneficiary has a "Locked' status, false otherwise    
-     */
     function isLocked(address organisation) public view returns (bool) {
         return IAMContract.isLocked(organisation);
     }
 
-    /**
-     * @notice Checks if a beneficiary has a 'Distrust' status
-     * @param organisation The address representing the beneficiary to check
-     * @return true if the beneficiary has a 'Distrust' status, false otherwise
-     */
     function isDistrust(address organisation) public view returns (bool) {
         return IAMContract.isDistrust(organisation);
     }
 
-    /**
-     * @notice Gets an array of all active campaigns run by a beneficiary
-     * @param organisation The address of the beneficiary to look up
-     * @return An array of all active campaigns run by specified beneficiary
-     */
     function getCampaignsOfOrg(address organisation) public view returns (address[] memory) {
         return orgCampaigns[organisation];
     }
@@ -239,19 +219,10 @@ contract TestCampaignFactory {
         emit OrgDeleted(organisation);
     }
 
-    /**
-     * @notice Converts hours to seconds
-     * @param hrs Time in hours
-     * @return Time in seconds
-     */
     function convertHoursToSeconds(uint16 hrs) private view returns (uint256) {
         return uint256(SecsInHour  * hrs);
     }
 
-    /**
-     * @notice Gives the value of 6 months in seconds
-     * @return The value of 6 months in seconds
-     */
     function getSecondsInSixMonths() private view returns (uint256) {
         return convertHoursToSeconds(HoursInYear) / 2;
     }
