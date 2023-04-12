@@ -110,6 +110,8 @@ contract IAM {
         emit OrgDistrust(organisation);
     }
 
+    // VIEWS
+
     function isVerified(address organisation) public view returns (bool) {
         return (orgStatus[organisation] == Status.VERIFIED);
     }
