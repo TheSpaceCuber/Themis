@@ -139,7 +139,7 @@ contract Campaign {
      * @dev Commission will also be transferred to CampaignFactory contract from this function
      */
     function withdraw() public ownerOnly verifiedOnly pastLockoutOnly {
-        uint256 commission = (totalDonated * commissionBP) / basispoints;
+        uint256 commission = (totalDonated * commissionBP) / basisPoints;
         uint256 netDonationAmt =  totalDonated - commission;
 
         campaignFactory.transfer(commission);
