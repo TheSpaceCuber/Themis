@@ -13,7 +13,7 @@ contract IAM {
     // The NONE status maps to 0; for unmapped addresses
     enum Status { NONE, VERIFIED, LOCK, DISTRUST }
     mapping(address => Status) orgStatus;
-    mapping(address => uint256) dateOfDistrust;
+    mapping(address => uint256) dateOfDistrust; // Date is stored in Unix time format
     address[] orgList;
 
     /**
@@ -110,55 +110,26 @@ contract IAM {
         emit OrgDistrust(organisation);
     }
 
-    /**
-     * @notice Checks if a given beneficiary has a 'Verified' status
-     * @param organisation The address representing the beneficiary to check
-     * @return true if beneficiary has a 'Verified' status, false otherwise
-     */
     function isVerified(address organisation) public view returns (bool) {
         return (orgStatus[organisation] == Status.VERIFIED);
     }
 
-    /**
-     * @notice Checks if a given beneficiary has a 'Locked' status
-     * @param organisation The address representing the beneficiary to check
-     * @return true if beneficiary has a 'Locked' status, false otherwise
-     */
     function isLocked(address organisation) public view returns (bool) {
         return (orgStatus[organisation] == Status.LOCK);
     }
 
-    /**
-     * @notice Checks if a given beneficiary has a 'Distrust' status
-     * @param organisation The address representing the beneficiary to check
-     * @return true if beneficiary has a 'Distrust' status, false otherwise
-     */
     function isDistrust(address organisation) public view returns (bool) {
         return (orgStatus[organisation] == Status.DISTRUST);
     }
 
-    /**
-     * @notice Looks up the current status of a given beneficiary
-     * @param organisation The address representing the beneficiary to look up
-     * @return A value from the Status enumeration variable
-     */
     function getStatus(address organisation) public view returns (Status) {
         return orgStatus[organisation];
     }
 
-    /**
-     * @notice Returns a list of beneficiaries stored in the IAM contract
-     * @return An array of beneficiaries
-     */
     function getOrgList() public view returns (address[] memory) {
         return orgList;
     }
 
-    /**
-     * @notice Gets the timestamp value of when an beneficiary has been given the 'Distrust' status
-     * @param organisation An address representing the beneficiary to look up
-     * @return A Unix timestamp of when a beneficiary has been marked as distrusted
-     */
     function getRefundPeriod(address organisation) public view returns (uint256) {
         require(orgStatus[organisation] == Status.DISTRUST, "Organisation is not distrusted");
         require(dateOfDistrust[organisation] != 0, "Organisation's refund period is not found");
