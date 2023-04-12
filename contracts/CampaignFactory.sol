@@ -6,7 +6,7 @@ import "./IAM.sol";
 /**
  * @title Creation, closure, and management of campaigns
  * @author IS4302 Group 11
- * @notice Campaign management should be done through this contract
+ * @notice Handles the creation and management of campaigns
  */
 contract CampaignFactory {
     address owner;
