@@ -174,7 +174,7 @@ contract ("Campaign", function(accounts){
     });
 
     it("CAM02: Donate to campaign with invalid value [Fail]", async() => {
-        // Invalid amou t
+        // Invalid amount
         await truffleAssert.reverts(
             campaignInstance.donate(false, {from: accounts[2], value: 0}),
             "Invalid donation amount"
@@ -221,7 +221,6 @@ contract ("Campaign", function(accounts){
         
         let newAccBal = await web3.eth.getBalance(accounts[0]);
         newAccBal = await BigInt(newAccBal);
-        
         let newCFBal = await web3.eth.getBalance(campaignFactoryInstance.address);
         newCFBal = await BigInt(newCFBal);
 
