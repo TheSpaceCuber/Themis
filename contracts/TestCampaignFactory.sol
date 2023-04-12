@@ -18,46 +18,11 @@ contract TestCampaignFactory {
     uint16 SecsInHour = 3600;
     mapping(address => address[]) orgCampaigns; // Maintains active campaigns only
 
-    /**
-     * @notice Emitted when a new Campaign contract is instantiated
-     * @param organisation The beneficiary that is running the campaign
-     * @param campaign The address of the newly instantiated Campaign contract
-     * @param durationHrs The duration that the campaign will run for
-     */
     event MountCampaign(address organisation, address campaign, uint256 durationHrs);
-
-    /**
-     * @notice Emitted when a campaign has ended and is closed
-     * @param organisation The beneficiary that was in-charge of the campaign
-     * @param campaign The address of the closing Campaign contract
-     */
     event CampaignEnded(address organisation, address campaign);
-
-    /**
-     * @notice Emitted when the commission money in this CampaignFactory contract is withdrawn
-     * @param amt The value of the commission withdrawn
-     */
     event CommissionWithdrawn(uint256 amt);
-
-    /**
-     * @notice Emitted when a campaign contract has been deleted. Used when a campaign or its 
-     * managing beneficiary is deemed to be untrustworthy
-     * @param organisation The beneficiary that was running the campaign
-     * @param campaign The address of the deleted Campaign contract
-     */
     event CampaignDeleted(address organisation, address campaign);
-
-    /**
-     * @notice Emitted when a beneficiary has been deleted from this contract's orgCampaigns mapping
-     * @param organisation The beneficiary that has been deleted
-     */
     event OrgDeleted(address organisation);
-
-    /**
-     * @notice Emitted when all donations made to an untrustworthy campaign has been refunded, including
-     * transferring any unclaimed donations to this CampaignFactory contract
-     * @param organisation The beneficiary that was in-charge of the distrusted campaign
-     */
     event RefundComplete(address organisation);
 
 
@@ -74,26 +39,13 @@ contract TestCampaignFactory {
 
 
     // --- FUNCTIONS ---
-    /**
-     * @notice Creates a new instance of this CampaignFactory contract
-     * @param IAMaddress The address of the IAM contract
-     */
     constructor(IAM IAMaddress) public {
         owner = msg.sender;
         IAMContract = IAMaddress;
     }
 
-    /**
-     * @notice The receive function for this CampaignFactory contract.
-     * @dev Currently only used for receiving commissions from Campaign contracts
-     */
     function() payable external {}
 
-    /**
-     * @notice Start a new campaign with the default duration of 1 year
-     * @dev Has an overloaded function alternative that allows caller to specify a duration for the campaign
-     * @return The address of the newly created Campaign contract
-     */
     function addCampaign() public verifiedOnly returns (TestCampaign) {
         require(orgCampaigns[msg.sender].length < MAX_CHARITIES, "Maximum active charities reached");
 
@@ -105,11 +57,6 @@ contract TestCampaignFactory {
         return c;
     }
 
-    /**
-     * @notice Start a new campaign with a specified campaign duration in hours
-     * @dev Has an overloaded function alternative that uses the default campaign duration of 1 year
-     * @return The address of the newly created Campaign contract
-     */
     function addCampaign(uint16 durationHrs) public verifiedOnly returns (TestCampaign) {
         require(durationHrs >= 24, "Minimum duration (hrs) is 24 hour");
         require(durationHrs <= HoursInYear, "Maximum duration (in hrs) is 1 year");
@@ -124,12 +71,6 @@ contract TestCampaignFactory {
     }
 
     /**
-     * @notice Closes the campaign that has went past its ending date and time
-     * @dev This function must only be called from the closing Campaign contract's withdraw function.
-     * This is to ensure that all donations have been transferred to the beneficiary and this 
-     * CampaignFactory contract (in the form of commissions)
-     * @param organisation The address of the beneficiary running the closing campaign
-     * @param campaign The instance of the Campaign contract that is being closed
      * @param test_isPastLockout A test parameter to test for Campaign contract expiry with 
      * specific time values
      */
@@ -150,10 +91,6 @@ contract TestCampaignFactory {
         emit CampaignEnded(organisation, address(campaign));
     }
 
-    /**
-     * @notice Allows the manager of this CampaignFactory contract to take out all collected commissions
-     * to date
-     */
     function withdrawCommissions() public ownerOnly {
         require(address(this).balance > 0, "No remaining balance");
         address payable ownerAddr = address(uint160(owner));
@@ -163,11 +100,6 @@ contract TestCampaignFactory {
         emit CommissionWithdrawn(amount);
     }
 
-    /**
-     * @notice Deletes an untrustworthy beneficiary from this contract's orgCampaigns mapping
-     * @dev This does not affect the status of the beneficiary in the IAM contract
-     * @param organisation The address of the beneficiary that will be deleted from orgCampaigns
-     */
     function deleteDistrustedOrg(address organisation) public ownerOnly {
         require(isDistrust(organisation) == true, "Organisation status is not distrust");
         require(block.timestamp >= IAMContract.getRefundPeriod(organisation) + getSecondsInSixMonths(), "Refund period is ongoing");
@@ -197,23 +129,11 @@ contract TestCampaignFactory {
         return orgCampaigns[organisation];
     }
 
-    /**
-     * @notice Deletes the last Campaign contract linked to an organisation in the
-     * orgCampaigns mapping
-     * @dev This function must be used exclusively in the deleteDistrustedOrg function 
-     * as the latter contains logic code to complement the function
-     * @param organisation The address of the beneficiary to delete a Campaign contract from
-     * @param campaign An address of a Campaign contract that will be deleted
-     */
     function deleteCampaignFromMapping(address organisation, TestCampaign campaign) private {
         orgCampaigns[organisation].pop();
         emit CampaignDeleted(organisation, address(campaign));
     }
 
-    /**
-     * @notice Deletes a beneficiary from the orgCampaigns mapping
-     * @param organisation The address of the beneficiary to delete
-     */
     function deleteOrgFromMapping(address organisation) private {
         delete orgCampaigns[organisation];
         emit OrgDeleted(organisation);
