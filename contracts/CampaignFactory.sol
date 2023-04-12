@@ -177,22 +177,6 @@ contract CampaignFactory {
         emit RefundComplete(organisation);
     }
 
-    function isVerified(address organisation) public view returns (bool) {
-        return IAMContract.isVerified(organisation);
-    }
-
-    function isLocked(address organisation) public view returns (bool) {
-        return IAMContract.isLocked(organisation);
-    }
-
-    function isDistrust(address organisation) public view returns (bool) {
-        return IAMContract.isDistrust(organisation);
-    }
-
-    function getCampaignsOfOrg(address organisation) public view returns (address[] memory) {
-        return orgCampaigns[organisation];
-    }
-
     /**
      * @notice Deletes the last Campaign contract linked to an organisation in the
      * orgCampaigns mapping
@@ -213,6 +197,24 @@ contract CampaignFactory {
     function deleteOrgFromMapping(address organisation) private {
         delete orgCampaigns[organisation];
         emit OrgDeleted(organisation);
+    }
+
+    // VIEWS
+
+    function isVerified(address organisation) public view returns (bool) {
+        return IAMContract.isVerified(organisation);
+    }
+
+    function isLocked(address organisation) public view returns (bool) {
+        return IAMContract.isLocked(organisation);
+    }
+
+    function isDistrust(address organisation) public view returns (bool) {
+        return IAMContract.isDistrust(organisation);
+    }
+
+    function getCampaignsOfOrg(address organisation) public view returns (address[] memory) {
+        return orgCampaigns[organisation];
     }
 
     function convertHoursToSeconds(uint16 hrs) private view returns (uint256) {
