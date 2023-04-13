@@ -148,31 +148,19 @@ contract Campaign {
 
         CampaignFactory(campaignFactory).closeCampaign(owner, this);
     }
-
+    
     /**
      * @notice Allows donors to reclaim their donations in the event that this campaign or the managing
      * beneficiary is deemed to be untrustworthy
      * @dev Currently only contains pseduocode
-     * @param campaignAddr The address of this Campaign contract
+     * @param donor the address of the person who donated
+     * @param amt the amount of money to be refunded
      */
-    function refund(address campaignAddr) public campaignFactoryOnly distrustOnly {
-
-        //retrieve past transactions/events here using campaignAddr
-        /*
-        let contractJSON = require('./CampaignTest.json');
-        let contractABI = contractJSON.abi;
-
-        let CampaignTestContract = new web3.eth.Contract(contractABI, campaignAddr);
-
-        CampaignTestContract.getPastEvents("DonationMade", options, (error, events) => {
-        if (error) {
-            console.log(error);
-        } else {
-            //for each event, parse out sender and value
-            //sender.transfer(value)
-            //emit HasRefunded(sender, value);
-        }
-        */
+    function refund(address payable donor, uint256 amt) public distrustOnly {
+        require(amt > 0, "No amount to refund");
+        require(msg.sender == donor);
+        donor.transfer(amt);
+        emit HasRefunded(donor, amt);
     }
 
     /**
