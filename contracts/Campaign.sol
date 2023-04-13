@@ -153,13 +153,14 @@ contract Campaign {
      * @notice Allows donors to reclaim their donations in the event that this campaign or the managing
      * beneficiary is deemed to be untrustworthy
      * @dev Currently only contains pseduocode
-     * @param campaignAddr The address of this Campaign contract
+     * @param donor the address of the person who donated
+     * @param amt the amount of money to be refunded
      */
     function refund(address payable donor, uint256 amt) public distrustOnly {
         require(amt > 0, "No amount to refund");
         require(msg.sender == donor);
         donor.transfer(amt);
-        emit hasRefunded(donor, amt);
+        emit HasRefunded(donor, amt);
     }
 
     /**
