@@ -165,7 +165,7 @@ contract ("Campaign", function(accounts){
     });
     
     it("CAM01: Donate to campaign [Pass]", async() => {
-        await IAMInstance.add(accounts[2]);
+        // await IAMInstance.add(accounts[2]);
         //Initialise campaign instance using previously saved address of a campaign
         campaignInstance = await Campaign.at(camp1);
         let donate = await campaignInstance.donate(false, {from: accounts[2], value: oneEth});
